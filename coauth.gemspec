@@ -16,7 +16,7 @@ Gem::Specification.new do |s|
   s.homepage    =
     'http://bitbucket.org/quaypay/coauth'
 
-
+  s.add_dependency "fog"
   s.add_dependency "rails"
   s.add_dependency "omniauth-identity"
   s.add_dependency "omniauth-twitter"

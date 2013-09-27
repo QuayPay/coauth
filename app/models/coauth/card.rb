@@ -2,6 +2,7 @@
 	require 'scrypt'
 	require 'openssl'
 	require 'base64'
+	require 'fog'
 class Card < Couchbase::Model
 	before_create :generate_id
 	attribute    :cardtype, :carddetails, :name, :lastfour, :user_id, :pkpass
