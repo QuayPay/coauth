@@ -1,3 +1,4 @@
+
 class User < Couchbase::Model
 	 include OmniAuth::Identity::Model
      include OmniAuth::Identity::SecurePassword
@@ -31,3 +32,4 @@ class User < Couchbase::Model
 	end
 
 end
+

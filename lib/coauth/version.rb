@@ -1,3 +1,3 @@
-module AppCore
-  VERSION = "0.0.5"
+module Coauth
+  VERSION = "0.0.1"
 end
