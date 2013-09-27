@@ -4,7 +4,7 @@ module Coauth
     # NOTE:: This is required for OpenId Providers to prevent the session being lost 
     #
 
-  	def new
+      def new
       # Stuff to display on the login-page.
     end
     
@@ -18,12 +18,12 @@ module Coauth
         ruri = 'redirect_uri=' + session[:oauthparams][:redirect_uri]
         cid = 'client_id=' + session[:oauthparams][:client_id]
         oauthparams = rtype + '&' + ruri + '&' + cid
-        path = '/#/auths' + oauthparams
+        path = '/ext_oauth.html' + oauthparams
         tempuser = session[:user_id]
         reset_session
         session[:user_id] = tempuser
       else
-        path = '/#/auths'
+        path = '/ext_oauth.html'
       end
       ########################################################
 
