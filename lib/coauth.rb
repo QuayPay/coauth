@@ -1,4 +1,4 @@
-require "coauth/engine"
+require "auth/engine"
 
 require 'couchbase'
 require "doorkeeper"
@@ -9,5 +9,5 @@ require "omniauth-twitter"
 require "omniauth-facebook"
 require "omniauth-openid"
 
-module Coauth
+module Auth
 end

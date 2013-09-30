@@ -1,5 +1,5 @@
-module Coauth
-    class HomeController < Coauth::ApplicationController
+module Auth
+    class HomeController < Auth::ApplicationController
 
       def index
           if current_user

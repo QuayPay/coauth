@@ -1,5 +1,5 @@
 function(doc) {
-  if(doc.type == "coauth_authentication") {
+  if(doc.type == "auth_authentication") {
     emit([doc.user_id], null);
   }
 }

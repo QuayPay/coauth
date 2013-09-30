@@ -1,4 +1,4 @@
-module Coauth
+module Auth
     class Authentication < Couchbase::Model
         before_create :generate_id
         

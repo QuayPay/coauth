@@ -1,4 +1,4 @@
-module Coauth
+module Auth
     module Accounts
         class UsersController < ApplicationController
             respond_to :json

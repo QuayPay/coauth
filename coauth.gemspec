@@ -1,12 +1,12 @@
 $:.push File.expand_path("../lib", __FILE__)
 
 # Maintain your gem's version:
-require "coauth/version"
+require "auth/version"
 
 # Describe your gem and declare its dependencies:
 Gem::Specification.new do |s|
   s.name        = "coauth"
-  s.version     = Coauth::VERSION
+  s.version     = Auth::VERSION
   s.date        = '2013-09-24'
   s.summary     = "Log in with multiple social media providers"
   s.description = "Log in with multiple social media providers"

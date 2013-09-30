@@ -1,4 +1,4 @@
-module Coauth
+module Auth
     module Accounts
         class AuthenticationsController < ApplicationController
 

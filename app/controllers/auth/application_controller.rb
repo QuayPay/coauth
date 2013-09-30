@@ -1,4 +1,4 @@
-module Coauth
+module Auth
   class ApplicationController < ActionController::Base
     include ApplicationHelper
       

@@ -1,4 +1,4 @@
-module Coauth
+module Auth
   class SessionsController < ApplicationController
     #
     # NOTE:: This is required for OpenId Providers to prevent the session being lost 
@@ -94,7 +94,7 @@ module Coauth
           self.current_user = u
           if oauth
             # If registering to obtain an oAuth token, redirect to add a card
-            redirect_to '/#/cards?' + oauthparams + (ident ||= "")  
+            redirect_to '/cards?' + oauthparams + (ident ||= "")  
           else
             redirect_to path
           end
@@ -109,7 +109,7 @@ module Coauth
       if params['redirect_uri']
         path = params['redirect_uri']
       else
-        path = '/#/'
+        path = '/'
       end
       self.current_user = nil
       reset_session
@@ -117,7 +117,7 @@ module Coauth
     end
     
     def failure  
-      redirect_to '/#/', alert: "Authentication failed, please try again."  
+      redirect_to '/', alert: "Authentication failed, please try again."  
     end
 
     def update_user(auth)
