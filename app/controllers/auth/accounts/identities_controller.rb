@@ -2,9 +2,8 @@ module Auth
     module Accounts
         class IdentitiesController < ApplicationController
 
-
-              def new
-                @identity = env['omniauth.identity']
+              def failed
+                render :nothing => true, :status => :not_acceptable
               end
 
               def destroy
