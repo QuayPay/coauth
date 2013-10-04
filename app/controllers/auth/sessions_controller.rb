@@ -22,7 +22,7 @@ module Auth
         
         def create
             # where do we want to redirect to with our new session
-            path = session[:continue] || success_path
+            path = session[:continue] || '/login_success.html'
 
             # Always reset the session
             tempuser = session[:user_id]
