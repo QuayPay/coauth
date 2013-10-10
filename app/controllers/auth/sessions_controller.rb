@@ -1,3 +1,5 @@
+require 'net/http'
+require 'uri'
 module Auth
     class SessionsController < ApplicationController
 
@@ -19,6 +21,29 @@ module Auth
             end
         end
 
+        def verify 
+
+            # Save any changes to the user model from params then
+            # create an identity model if the password field isn't empty
+
+            auth = session[:provider_id]
+            @authentication = Authentication.from_omniauth(auth)
+            u = User.create_with_omniauth(auth)
+            @authentication.user_id = u.id
+            @authentication.save
+            u.name = params['name']
+            u.email = params['email']
+            u.save
+            self.current_user = u
+            if params['password'] != ''
+                # Create identity and redirect back to sessions controller
+                identity.create!(params)
+                Authentication.create!({'uid' => params['email'], 'provider' => 'identity', 'user_id' => u.id})
+                redirect_to '/login_success.html'
+            else
+                redirect_to '/login_success.html'
+            end
+        end
         
         def create
             # where do we want to redirect to with our new session
@@ -32,6 +57,7 @@ module Auth
 
             #################### FIND OR CREATE AUTH ###############
             auth = request.env['omniauth.auth']
+            p auth.id
             # Find an authentication or create an authentication
             @authentication = Authentication.from_omniauth(auth)
             if @authentication.nil?
@@ -50,7 +76,6 @@ module Auth
                         # TODO:: Multiple accounts code path
                     end
                 else
-                    update_user(auth)
                     @authentication.user_id = current_user.id
                     @authentication.save
                     current_user.save
@@ -73,28 +98,40 @@ module Auth
                 else
              
 
-
+                    session[:provider_id] = auth
                     #################### REGISTERING VIA AUTH ###############
                     if @authentication.provider == 'identity'
                         u = User.find(@authentication.uid)
                         @authentication.user_id = u.id
                         @authentication.save
+                        # We can now link the authentication with the user and log him in
+                        u.save
+                        #UserMailer.welcome_email(u).deliver
+                        self.current_user = u
+                        redirect_to path
                         # If the provider is identity, then it means we already created a user
                         # So we just load it up
 
                     else
                         # otherwise we have to create a user with the auth hash
-                        u = User.create_with_omniauth(auth)
-                        @authentication.user_id = u.id
-                        @authentication.save
+                        redirectstr = '/verify?'
+                        redirectstr += 'name=' + auth.info.name unless (!(auth.info.first_name.nil? && auth.info.last_name.nil?))
+                        redirectstr += 'first_name=' + auth.info.first_name unless auth.info.first_name.nil?
+                        redirectstr += '&last_name=' + auth.info.last_name unless auth.info.last_name.nil?
+                        redirectstr += '&email=' + auth.info.email unless auth.info.email.nil?
+                        p redirectstr
+                        redirect_to redirectstr
+                        # u = User.create_with_omniauth(auth)
+                        # @authentication.user_id = u.id
+                        # @authentication.save
                         # NOTE: we will handle the different types of data we get back
                         # from providers at the model level in create_with_omniauth
                     end
-                    # We can now link the authentication with the user and log him in
-                    u.save
-                    #UserMailer.welcome_email(u).deliver
-                    self.current_user = u
-                    redirect_to path
+                    # # We can now link the authentication with the user and log him in
+                    # u.save
+                    # #UserMailer.welcome_email(u).deliver
+                    # self.current_user = u
+                    # redirect_to path
                     #########################################################
                 end
 
@@ -117,11 +154,6 @@ module Auth
             redirect_to root_path, alert: "Authentication failed, please try again."
         end
 
-        def update_user(auth)
-            current_user.email = auth['info']['email'] unless auth['info']['email'].nil?
-            current_user.name = auth['info']['name'] unless auth['info']['name'].nil?
-            current_user.save
-        end
     end
 
 end
