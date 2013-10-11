@@ -11,6 +11,8 @@ module Auth
                 respond_with :accounts, User.find(params[:id]).update_attributes(user_params).save
             end
 
+      
+
             def show
                 if session['user_id']
                     respond_with User.find(session['user_id'])

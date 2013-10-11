@@ -2,8 +2,8 @@ class User < Couchbase::Model
     include OmniAuth::Identity::Model
      include OmniAuth::Identity::SecurePassword
     include CouchHelp::IdGenerator
-    attribute   :name, :email, :password_digest, :guest
-
+    attribute   :name, :email, :password_digest, :guest, :image
+    
 
     def self.auth_key=(key)
     super
@@ -23,10 +23,10 @@ class User < Couchbase::Model
 
     end
 
-    def self.create_with_omniauth(auth)
+    def self.create_with_omniauth(info)
         user = self.new()
-        user.name = auth['info']['name']
-        user.email = auth['info']['email']
+        user.name = info['name']
+        user.email = info['email']
         user.create!
     end
 
