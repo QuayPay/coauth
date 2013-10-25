@@ -17,7 +17,7 @@ Doorkeeper.configure do
     #  reset_session # prevent session fixation
     #  redirect_to('/login_required.html')
     #end
-
+    
     User.find_by_id(session[:user_id]) || redirect_to('/login_required.html')
   end
 
@@ -32,9 +32,6 @@ Doorkeeper.configure do
   #   Admin.find_by_id(session[:admin_id]) || redirect_to routes.new_admin_session_path
   # end
 
-  resource_owner_from_credentials do
-    warden.authenticate!(:scope => :user)
-  end
 
   # Access token expiration time (default 2 hours)
   # access_token_expires_in 2.hours
@@ -46,5 +43,5 @@ Doorkeeper.configure do
   # Define access token scopes for your provider
   # For more information go to https://github.com/applicake/doorkeeper/wiki/Using-Scopes
   default_scopes  :public
-  optional_scopes :write
+  optional_scopes :guest, :user, :store, :merchant
 end

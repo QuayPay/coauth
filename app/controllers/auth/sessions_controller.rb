@@ -24,6 +24,14 @@ module Auth
        
         
         def create
+
+            if signed_in?
+                if User.find_by_id(session[:user_id]).guest == true
+                    # If the currently logged in user is a guest, then log them out and create a new account
+                    p' resetting session'
+                    reset_session
+                end
+            end
             #UserMailer.welcome_email(u).deliver
 
             # where do we want to redirect to with our new session
