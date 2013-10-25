@@ -22,12 +22,6 @@ module Auth
                         
             end
 
-            def index
-
-            
-                
-            end
-
 
             protected
 

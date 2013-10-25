@@ -17,7 +17,7 @@ module Auth
             else
                 reset_session
                 session[:continue] = path
-                redirect_to login_path    # angularjs code on the front end
+                redirect_to login_path + '?continue=' + session[:continue]    # angularjs code on the front end
             end
         end
 

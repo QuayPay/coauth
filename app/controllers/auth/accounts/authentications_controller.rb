@@ -6,11 +6,11 @@ module Auth
             respond_to :json
             
            def index
-              curr_user = current_user || User.find_by_id(doorkeeper_token.resource_owner_id.to_s)
+                curr_user = current_user || User.find_by_id(doorkeeper_token.resource_owner_id.to_s)
             if curr_user
-              response =  Authentication.by_user(curr_user.id)
+                response =  Authentication.by_user(curr_user.id)
             else
-              response = nil
+                response = nil
             end
             respond_with response
           end
