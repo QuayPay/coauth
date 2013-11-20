@@ -4,7 +4,6 @@ module Auth
         
         attribute :uid, :provider, :user_id
         view :by_user_id
-        belongs_to :user
         
         def self.by_user(id)
             by_user_id({:key => [id], :stale => 'false'})
