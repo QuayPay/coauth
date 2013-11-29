@@ -62,7 +62,6 @@ module Auth
                 else 
                     # Auth provider is identity, we already have a user model
                     if auth['provider'] == 'identity'
-                        p 'IDENT'
                         @authentication = Authentication.create_with_omniauth(auth)
                         u = User.find(@authentication.uid)
                         @authentication.user_id = u.id
@@ -70,9 +69,18 @@ module Auth
                         u.save
                         self.current_user = u
                         redirect_to path
+                    elsif auth['provider'] == 'facebook'
+                        reset_session
+                        @authentication = Auth::Authentication.create!({'provider' => auth['provider'], 'uid' => auth['uid']})
+                        newuser = User.create!({:user => {:name => auth.info.name, :email => auth.info.email}})
+                        @authentication.user_id = newuser.id
+                        @authentication.save
+                        self.current_user = newuser
+                        redirect_to '/login_success.html'
                     else
                         session[:uid] = auth['uid']
                         session[:provider] = auth['provider']
+                        
                         redirectstr = '/register?'
                         redirectstr += 'name=' + auth.info.name unless (!(auth.info.first_name.nil? && auth.info.last_name.nil?))
                         redirectstr += 'first_name=' + auth.info.first_name unless auth.info.first_name.nil?
@@ -81,6 +89,7 @@ module Auth
                         redirectstr += '&verify=true'
                         #redirectstr += '&image=' + auth.info.image.sub('type=square','type=large') unless auth.info.image.nil?
                         redirect_to redirectstr
+                       
                     end
                 end
             else
