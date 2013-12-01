@@ -22,19 +22,17 @@ module Auth
         end
 
        
-        
+        #
+        # Run each time a user logs in via social or identity auth
+        #
         def create
-
-            if signed_in?
-                if User.find_by_id(session[:user_id]).guest == true
-                    # If the currently logged in user is a guest, then log them out and create a new account
-                    p' resetting session'
-                    reset_session
-                end
+            
+            # If the currently logged in user is a guest, then log them out and create a new account
+            if signed_in? && User.find_by_id(session[:user_id]).guest == true
+                reset_session
             end
-            #UserMailer.welcome_email(u).deliver
 
-            # where do we want to redirect to with our new session
+            # Where do we want to redirect to with our new session
             path = session[:continue] || '/login_success.html'
 
             # Always reset the session
@@ -42,67 +40,77 @@ module Auth
             reset_session
             session[:user_id] = tempuser
 
-
+            # Get auth hash from omniauth
             auth = request.env['omniauth.auth']
 
             # Find an authentication or create an authentication
             @authentication = Authentication.from_omniauth(auth)
             
-            if @authentication.nil?
-                
-                # If no authentication was found, create a brand new one here
-                # @authentication = Authentication.create_with_omniauth(auth)
+            if @authentication.nil? && signed_in?
 
-                if signed_in? # User is signed in and therefore adding provider
-                    @authentication = Authentication.create_with_omniauth(auth)
-                    @authentication.user_id = current_user.id
-                    @authentication.save
-                    redirect_to path
-                   
-                else 
-                    # Auth provider is identity, we already have a user model
-                    if auth['provider'] == 'identity'
-                        @authentication = Authentication.create_with_omniauth(auth)
-                        u = User.find(@authentication.uid)
-                        @authentication.user_id = u.id
-                        @authentication.save
-                        u.save
-                        self.current_user = u
-                        redirect_to path
-                    end
-                        session[:uid] = auth['uid']
-                        session[:provider] = auth['provider']
+                # Adding a new auth to existing user
+                omniauth_login(auth, path)          
 
-                    if auth['provider'] == 'facebook'                        
-                        redirect_to '/api/v1/register?name=' + auth.info.name + '&email=' + auth.info.email
-                    else
-                        redirectstr = '/register?'
-                        redirectstr += 'name=' + auth.info.name unless (!(auth.info.first_name.nil? && auth.info.last_name.nil?))
-                        redirectstr += 'first_name=' + auth.info.first_name unless auth.info.first_name.nil?
-                        redirectstr += '&last_name=' + auth.info.last_name unless auth.info.last_name.nil?
-                        redirectstr += '&email=' + auth.info.email unless auth.info.email.nil?
-                        redirectstr += '&verify=true'
-                        #redirectstr += '&image=' + auth.info.image.sub('type=square','type=large') unless auth.info.image.nil?
-                        redirect_to redirectstr
-                    end
+            elsif @authentication.nil?
+
+                # Auth provider is identity, we already have a user model
+                if auth['provider'] == 'identity'
+                    omniauth_login(auth, path)
                 end
-            else
-                if signed_in?
-                    # User already signed in and auth already exists...
-                    # Either their re-adding a provider or adding one already linked to another account
-                    if @authentication.user_id == current_user.id
-                        redirect_to path
-                    else
-                        # TODO:: Multiple accounts code path
-                    end
+
+                # Set session variables so they can be accessed by the API 
+                session[:uid] = auth['uid']
+                session[:provider] = auth['provider']
+
+                # Providers to bypass register page - move this to env variable
+                bypass_register = ['facebook', 'twitter']
+
+                # Params returned by omniauth which we don't want to send as params to register
+                skip_params = ['urls', 'nickname', 'Website']
+
+                # Bypass registration page if provider is in array
+                if bypass_register.include?(auth['provider'])
+                    redirect_to '/api/v1/register?' + auth_params_string(auth.info, skip_params)     
                 else
-                    # No user signed in but auth exists... Log the user in
-                    self.current_user = User.find_by_id(@authentication.user_id)
-                    redirect_to path
+                    redirect_to '/register?' + auth_params_string(auth.info, skip_params)
                 end
+
+            elsif signed_in?
+
+                # Either they're re-adding a provider or adding one already linked to another account
+                if @authentication.user_id == current_user.id
+                    redirect_to path
+                else
+                    # TODO:: Multiple accounts code path, we probably wont get here for a while
+                end
+
+            else
+
+                # No user signed in but auth exists... Log the user in
+                self.current_user = User.find_by_id(@authentication.user_id)
+                redirect_to path
+                
             end
         end
         
+        #
+        # Creates an authentication, associates the user with it and logs them in if not already
+        #
+        def omniauth_login(auth, path)
+            @authentication = Authentication.create_with_omniauth(auth)
+            if signed_in?
+                user = User.find(@authentication.uid)
+                self.current_user = user
+            end
+            @authentication.user_id = current_user.id
+            @authentication.save
+            redirect_to path
+        end
+
+        def auth_params_string(authinfo, skip)
+            return authinfo.map{|k,v| "#{k}=#{v}" unless skip.include?(k)}.reject{|x| x.nil? }.join('&')
+        end
+
         def destroy
             if params['redirect_uri']
                 path = params['redirect_uri']
