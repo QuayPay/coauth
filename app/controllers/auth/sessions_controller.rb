@@ -56,6 +56,7 @@ module Auth
                 # Auth provider is identity, we already have a user model
                 if auth['provider'] == 'identity'
                     omniauth_login(auth, path)
+                    return
                 end
 
                 # Set session variables so they can be accessed by the API 
@@ -70,26 +71,27 @@ module Auth
 
                 # Bypass registration page if provider is in array
                 if bypass_register.include?(auth['provider'])
-                    redirect_to '/api/v1/register?' + auth_params_string(auth.info, skip_params)     
+                    redirect_to '/api/v1/register?' + auth_params_string(auth.info, skip_params)
+                    return     
                 else
                     redirect_to '/register?' + auth_params_string(auth.info, skip_params)
+                    return
                 end
 
             elsif signed_in?
-
                 # Either they're re-adding a provider or adding one already linked to another account
                 if @authentication.user_id == current_user.id
                     redirect_to path
+                    return
                 else
                     # TODO:: Multiple accounts code path, we probably wont get here for a while
                 end
 
             else
-
                 # No user signed in but auth exists... Log the user in
                 self.current_user = User.find_by_id(@authentication.user_id)
                 redirect_to path
-                
+                return                
             end
         end
         
@@ -98,7 +100,7 @@ module Auth
         #
         def omniauth_login(auth, path)
             @authentication = Authentication.create_with_omniauth(auth)
-            if signed_in?
+            if !signed_in?
                 user = User.find(@authentication.uid)
                 self.current_user = user
             end
