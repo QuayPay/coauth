@@ -23,7 +23,6 @@ Gem::Specification.new do |s|
   s.add_dependency "omniauth-twitter"
   s.add_dependency "omniauth-facebook"
   s.add_dependency "omniauth-openid"
-  s.add_dependency "radix"
   s.add_development_dependency "rspec"
   s.add_development_dependency "konacha"
 end
