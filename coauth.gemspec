@@ -18,6 +18,7 @@ Gem::Specification.new do |s|
   s.test_files = Dir["test/**/*"]
 
   s.add_dependency "fog"
+  s.add_dependency "omniauth-identity"
 
   s.add_development_dependency "rails", "~> 4.0.0"
   s.add_development_dependency "rspec"

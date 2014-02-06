@@ -1,3 +1,5 @@
+require "omniauth-identity"
+
 class Identity < Couchbase::Model
      include OmniAuth::Identity::Model
      include OmniAuth::Identity::SecurePassword
