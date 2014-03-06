@@ -84,8 +84,10 @@ module OpenID
 
       def cleanup_associations
       end
+      
 
       protected
+
 
       def delete(key)
         result = @cache_client.delete(key)

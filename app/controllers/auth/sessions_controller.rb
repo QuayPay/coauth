@@ -1,5 +1,7 @@
 require 'net/http'
 require 'uri'
+
+
 module Auth
     class SessionsController < ApplicationController
 
@@ -26,16 +28,15 @@ module Auth
         # Run each time a user logs in via social or identity auth
         #
         def create
-            
             # If the currently logged in user is a guest, then log them out and create a new account
             if signed_in? && User.find_by_id(session[:user_id]).guest == true
                 reset_session
             end
 
             # Where do we want to redirect to with our new session
-            path = session[:continue] || '/login_success.html'
+            path = session[:continue] || success_path
 
-            # Always reset the session
+            # Always reset the session (avoid session fixation)
             tempuser = session[:user_id]
             reset_session
             session[:user_id] = tempuser
@@ -86,7 +87,6 @@ module Auth
                 else
                     # TODO:: Multiple accounts code path, we probably wont get here for a while
                 end
-
             else
                 # No user signed in but auth exists... Log the user in
                 self.current_user = User.find_by_id(@authentication.user_id)
@@ -127,7 +127,5 @@ module Auth
         def failure    
             redirect_to root_path, alert: "Authentication failed, please try again."
         end
-
     end
-
 end
