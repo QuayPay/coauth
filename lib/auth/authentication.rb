@@ -2,17 +2,22 @@ module Auth
     class Authentication < Couchbase::Model
         before_create :generate_id
         
+
         attribute :uid, :provider, :user_id
+
+
+        # TODO:: Create this view
         view :by_user_id
-        
         def self.by_user(id)
             by_user_id({:key => [id], :stale => 'false'})
         end
 
+
         protected
+
         
         def self.from_omniauth(auth)
-            self.find_by_id("auth-" + auth["provider"] + "::" + auth["uid"])
+            self.find_by_id('auth-' + auth['provider'] + '-' + auth['uid'])
         end    
         
         def self.create_with_omniauth(auth)
@@ -23,7 +28,7 @@ module Auth
         end
         
         def generate_id
-            self.id = "auth-" + self.provider + "::" + self.uid
+            self.id = 'auth-' + self.provider + '-' + self.uid
         end
     end
 end
