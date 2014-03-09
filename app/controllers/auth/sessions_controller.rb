@@ -11,27 +11,13 @@ module Auth
 
         SKIP_PARAMS = Set.new(['urls', 'Website']) # Params we don't want to send to register
 
-        #
-        # Full screen redirect authentication options
-        #
-        def service_login
-            path = params[:continue] || request.referer || root_path
 
-            if signed_in?
-                redirect_to path
-            else
-                remove_session
-                session[:continue] = path
-                redirect_to login_path + '?continue=' + session[:continue]    # angularjs code on the front end
-            end
-        end
-
-
+        # Inline login
         def new
             details = params.permit(:provider, :continue)
             remove_session
             session[:continue] = details[:continue]
-            redirect_to "/auth/#{details[:provider]}"
+            redirect_to "/auth/#{details[:provider]}", :status => :see_other
         end
 
        
@@ -77,10 +63,6 @@ module Auth
         def destroy
             remove_session
             redirect_to (params.permit(:continue)[:continue] || root_path)
-        end
-        
-        def failure
-            redirect_to root_path
         end
 
 
