@@ -5,6 +5,8 @@ require 'doorkeeper'
 require 'auth/authentication'
 require 'auth/user'
 
+require 'open_id/store/couch_store'
+
 
 # old_docs = ::Couchbase::Model::Configuration.design_documents_paths
 # ::Couchbase::Model::Configuration.design_documents_paths = [File.expand_path(File.join(File.expand_path("../", __FILE__), 'auth'))]
