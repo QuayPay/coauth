@@ -31,7 +31,7 @@ module Auth
                 httponly: true,
                 path: '/auth'   # only sent to calls at this path
             }
-            value[:secure] = true if Rails.env.production?
+            #value[:secure] = true if Rails.env.production?
             cookies.signed[:user] = value
         end
 
@@ -44,7 +44,7 @@ module Auth
                 httponly: true,
                 path: '/auth'   # only sent to calls at this path
             }
-            value[:secure] = true if Rails.env.production?
+            #value[:secure] = true if Rails.env.production?
             cookies.signed[:social] = value
         end
 

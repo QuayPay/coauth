@@ -45,10 +45,21 @@ module Auth
 
             elsif auth_model.nil?
                 # TODO:: Provide callback for skipping registration page
+                authinfo = ::ActionController::Parameters.new(auth.info)
+                user = ::User.from_omniauth(safe_auth_params(authinfo))
+                if user.save
+                    auth = Auth::Authentication.new({provider: auth[PROVIDER], uid: auth[UID]})
+                    auth.user_id = user.id
+                    auth.save
 
-                # Go to registration page
-                store_social(auth[UID], auth[PROVIDER])
-                redirect_to '/signup?' + auth_params_string(auth.info)
+                    # Set the user in the session and complete the auth process
+                    remove_session
+                    new_session(user)
+                    redirect_to path
+                else
+                    store_social(auth[UID], auth[PROVIDER])
+                    redirect_to '/signup?' + auth_params_string(auth.info)
+                end
 
             else
 
@@ -67,7 +78,10 @@ module Auth
 
 
         protected
+        def safe_auth_params(authinfo) 
+            authinfo.permit(:name, :email, :password, :password_confirmation);
 
+        end
 
         def auth_params_string(authinfo)
             authinfo.map{|k,v| "#{k}=#{v}" unless SKIP_PARAMS.include?(k)}.reject{|x| x.nil? }.join('&')

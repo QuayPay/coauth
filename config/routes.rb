@@ -8,6 +8,7 @@ Rails.application.routes.draw do
         get  '/:provider/callback', to: 'auth/sessions#create' #omniauth route
         post '/:provider/callback', to: 'auth/sessions#create' #omniauth route
 
+        get '/signup', to: 'auth/signups#create'  # manual account creation
         post '/signup', to: 'auth/signups#create'  # manual account creation
     end
 end
