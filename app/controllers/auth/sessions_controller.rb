@@ -25,8 +25,6 @@ module Auth
         # Run each time a user logs in via social
         #
         def create
-            # TODO:: add a pre-create callback for custom logic
-
             # Where do we want to redirect to with our new session
             path = session[:continue] || success_path
 
@@ -44,9 +42,7 @@ module Auth
                 redirect_to path
 
             elsif auth_model.nil?
-                # TODO:: Provide callback for skipping registration page
-                authinfo = ::ActionController::Parameters.new(auth.info)
-                user = ::User.from_omniauth(safe_auth_params(authinfo))
+                user = ::User.from_omniauth(safe_params(auth.info))
                 if user.save
                     auth = Auth::Authentication.new({provider: auth[PROVIDER], uid: auth[UID]})
                     auth.user_id = user.id
@@ -57,12 +53,12 @@ module Auth
                     new_session(user)
                     redirect_to path
                 else
+                    # Where /signup is a client side application
                     store_social(auth[UID], auth[PROVIDER])
                     redirect_to '/signup?' + auth_params_string(auth.info)
                 end
 
             else
-
                 # Log-in the user currently authenticating
                 remove_session if signed_in?
                 new_session(User.find_by_id(auth_model.user_id))
@@ -78,9 +74,10 @@ module Auth
 
 
         protected
-        def safe_auth_params(authinfo) 
-            authinfo.permit(:name, :email, :password, :password_confirmation);
 
+
+        def safe_params(authinfo)
+            ::ActionController::Parameters.new(authinfo).permit(:name, :email, :password, :password_confirmation)
         end
 
         def auth_params_string(authinfo)
