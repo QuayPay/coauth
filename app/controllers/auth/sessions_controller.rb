@@ -32,27 +32,28 @@ module Auth
             auth = request.env[OMNIAUTH]
 
             # Find an authentication or create an authentication
-            auth_model = Authentication.from_omniauth(auth)
+            auth_model = ::Auth::Authentication.from_omniauth(auth)
             
             if auth_model.nil? && signed_in?
                 # Adding a new auth to existing user
-                auth_model = Authentication.create_with_omniauth(auth)
-                auth_model.user_id = current_user.id
-                auth_model.save
+                ::Auth::Authentication.create_with_omniauth(auth, current_user.id)
                 redirect_to path
 
             elsif auth_model.nil?
-                user = ::User.from_omniauth(safe_params(auth.info))
+                user = ::User.new(safe_params(auth.info))
                 if user.save
-                    auth = Auth::Authentication.new({provider: auth[PROVIDER], uid: auth[UID]})
-                    auth.user_id = user.id
-                    auth.save
+                    ::Auth::Authentication.create_with_omniauth(auth, user.id)
+                    # TODO:: Consider what to do here on error...
+                    # i.e user created without auth due to database fail
 
                     # Set the user in the session and complete the auth process
                     remove_session
                     new_session(user)
                     redirect_to path
                 else
+                    # TODO:: check if existing user has any authentications
+                    # This works around the possible database error above.
+
                     # Where /signup is a client side application
                     store_social(auth[UID], auth[PROVIDER])
                     redirect_to '/signup?' + auth_params_string(auth.info)
