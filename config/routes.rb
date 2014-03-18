@@ -5,7 +5,6 @@ Rails.application.routes.draw do
 
         get  '/login', to: 'auth/sessions#new'  # for defining continue
         get  '/logout', to: 'auth/sessions#destroy'  # for defining continue
-        get  '/continue', to: 'auth/sessions#index'  # for full screen redirect
         get  '/:provider/callback', to: 'auth/sessions#create' #omniauth route
         post '/:provider/callback', to: 'auth/sessions#create' #omniauth route
 
