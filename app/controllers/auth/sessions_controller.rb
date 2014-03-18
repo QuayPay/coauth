@@ -12,6 +12,14 @@ module Auth
         SKIP_PARAMS = Set.new(['urls', 'Website']) # Params we don't want to send to register
 
 
+        # Redirect to continue
+        def index
+            path = session[:continue] || '/'
+            session.delete(:continue)
+            redirect_to path
+        end
+
+
         # Inline login
         def new
             details = params.permit(:provider, :continue)
