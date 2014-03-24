@@ -1,5 +1,6 @@
 module Auth
     class Authentication < Couchbase::Model
+        design_document :oauth  # less redundant data with short names
         before_create :generate_id
         
 
