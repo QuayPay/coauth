@@ -70,7 +70,7 @@ module Auth
         # Log off
         def destroy
             remove_session
-            redirect_to (params.permit(:continue)[:continue] || root_path)
+            redirect_to (params.permit(:continue)[:continue] || '/')
         end
 
 
