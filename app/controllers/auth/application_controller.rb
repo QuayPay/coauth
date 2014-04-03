@@ -32,24 +32,25 @@ module Auth
                 path: '/auth'   # only sent to calls at this path
             }
             #value[:secure] = true if Rails.env.production?
-            cookies.signed[:user] = value
+            cookies.encrypted[:user] = value
         end
 
         def store_social(uid, provider)
             value = {
                 value: {
                     uid: uid,
-                    provider: provider
+                    provider: provider,
+                    salt: SecureRandom.hex[0..(1 + rand(15))]   # Variable length
                 },
                 httponly: true,
                 path: '/auth'   # only sent to calls at this path
             }
             #value[:secure] = true if Rails.env.production?
-            cookies.signed[:social] = value
+            cookies.encrypted[:social] = value
         end
 
         def current_user
-            user = cookies.signed[:user]
+            user = cookies.encrypted[:user]
             @current_user ||= User.find(user[:id]) if user
         end
 
