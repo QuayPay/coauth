@@ -1,10 +1,12 @@
 require 'email_validator'
+require 'digest/md5'
+
 
 class User < Couchbase::Model
     include ::CouchbaseId::Generator
 
     attribute   :name, :email, :phone, :country, :image
-    attribute   :password_digest
+    attribute   :password_digest, :email_digest
 
 
     after_save  :update_email  # for uniqueness check
@@ -44,7 +46,11 @@ class User < Couchbase::Model
 
     def email=(new_email)
         @old_email ||= self.attributes[:email] || true
+        new_email.strip! # returns nil if not altered
         self.attributes[:email] = new_email
+
+        # For looking up user pictures without making the email public
+        self.email_digest = Digest::MD5.hexdigest(new_email)
     end
 
 
