@@ -1,9 +1,13 @@
+require 'email_validator'
 
 class User < Couchbase::Model
     include ::CouchbaseId::Generator
 
-    attribute :name, :email, :phone, :country, :image
-    attribute :password_digest
+    attribute   :name, :email, :phone, :country, :image
+    attribute   :password_digest
+
+
+    after_save  :update_email  # for uniqueness check
 
 
     # PASSWORD ENCRYPTION::
@@ -36,4 +40,34 @@ class User < Couchbase::Model
     end
     # --------------------
     # END PASSWORD METHODS
+
+
+    def email=(new_email)
+        @old_email ||= self.attributes[:email] || true
+        self.attributes[:email] = new_email
+    end
+
+
+    protected
+
+
+    # Validations
+    validates :email,   :presence => true
+    validates :email,   :email => true
+    validate  :email_unique
+
+    def email_unique
+        result = User.bucket.get("useremail-#{self.email}", {quiet: true})
+        if result != nil && result != self.id
+            errors.add(:email, 'must be unique')
+        end
+    end
+
+    def update_email
+        if @old_email && @old_email != self.email
+            User.bucket.delete("useremail-#{@old_email}", {quiet: true}) unless @old_email == true
+            User.bucket.set("useremail-#{self.email}", self.id)
+        end
+        @old_email = nil
+    end
 end
