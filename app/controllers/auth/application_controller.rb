@@ -1,23 +1,61 @@
+require 'securerandom'
+
 module Auth
-  class ApplicationController < ActionController::Base
-    include ApplicationHelper
-      
-      
-  private
+    class ApplicationController < ActionController::Base
+        def success_path
+            '/login_success.html'
+        end
 
-    def current_user
-      @current_user ||= User.find(session[:user_id]) if session[:user_id]
-    end
-    helper_method :current_user 
+        def login_path
+            '/login'
+        end
+        
+        
+        protected
 
-    def signed_in?
-      !!current_user
+
+        def remove_session
+            cookies.delete(:user,   path: '/auth')
+            cookies.delete(:social, path: '/auth')
+            #reset_session
+            @current_user = nil
+        end
+
+        def new_session(user)
+            @current_user = user
+            value = {
+                value: {
+                    id: user.id,
+                    salt: SecureRandom.hex[0..(1 + rand(31))]   # Variable length 1->32
+                },
+                httponly: true,
+                path: '/auth'   # only sent to calls at this path
+            }
+            value[:secure] = true if Rails.env.production?
+            cookies.encrypted[:user] = value
+        end
+
+        def store_social(uid, provider)
+            value = {
+                value: {
+                    uid: uid,
+                    provider: provider,
+                    salt: SecureRandom.hex[0..(1 + rand(15))]   # Variable length
+                },
+                httponly: true,
+                path: '/auth'   # only sent to calls at this path
+            }
+            value[:secure] = true if Rails.env.production?
+            cookies.encrypted[:social] = value
+        end
+
+        def current_user
+            user = cookies.encrypted[:user]
+            @current_user ||= User.find(user[:id]) if user
+        end
+
+        def signed_in?
+            !!current_user
+        end
     end
-    helper_method :signed_in?
-   
-    def current_user=(user)
-      @current_user = user
-      session[:user_id] = user.nil? ? user : user.id
-    end
-  end
 end

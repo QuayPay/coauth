@@ -1,133 +1,88 @@
 require 'net/http'
 require 'uri'
+require 'set'
+
+
 module Auth
     class SessionsController < ApplicationController
+        OMNIAUTH = 'omniauth.auth'.freeze
+        UID = 'uid'.freeze
+        PROVIDER = 'provider'.freeze
 
-        #
-        # Full screen redirect authentication options
-        #
-        def service_login
-            path = params[:continue] || request.referer || root_path
+        SKIP_PARAMS = Set.new(['urls', 'Website']) # Params we don't want to send to register
 
-            if signed_in?
-                tempuser = session[:user_id]
-                reset_session
-                session[:user_id] = tempuser
-                redirect_to path
-            else
-                reset_session
-                session[:continue] = path
-                redirect_to login_path + '?continue=' + session[:continue]    # angularjs code on the front end
-            end
+
+        # Inline login
+        def new
+            details = params.permit(:provider, :continue)
+            remove_session
+            session[:continue] = details[:continue]
+            redirect_to "/auth/#{details[:provider]}", :status => :see_other
         end
 
        
         #
-        # Run each time a user logs in via social or identity auth
+        # Run each time a user logs in via social
         #
         def create
-            
-            # If the currently logged in user is a guest, then log them out and create a new account
-            if signed_in? && User.find_by_id(session[:user_id]).guest == true
-                reset_session
-            end
-
             # Where do we want to redirect to with our new session
-            path = session[:continue] || '/login_success.html'
-
-            # Always reset the session
-            tempuser = session[:user_id]
-            reset_session
-            session[:user_id] = tempuser
+            path = session[:continue] || success_path
 
             # Get auth hash from omniauth
-            auth = request.env['omniauth.auth']
+            auth = request.env[OMNIAUTH]
 
             # Find an authentication or create an authentication
-            @authentication = Authentication.from_omniauth(auth)
+            auth_model = ::Auth::Authentication.from_omniauth(auth)
             
-            if @authentication.nil? && signed_in?
-
+            if auth_model.nil? && signed_in?
                 # Adding a new auth to existing user
-                omniauth_login(auth, path)          
-
-            elsif @authentication.nil?
-
-                # Auth provider is identity, we already have a user model
-                if auth['provider'] == 'identity'
-                    omniauth_login(auth, path)
-                    return
-                end
-
-                # Set session variables so they can be accessed by the API 
-                session[:uid] = auth['uid']
-                session[:provider] = auth['provider']
-
-                # Providers to bypass register page - move this to env variable
-                bypass_register = ['facebook', 'twitter']
-
-                # Params returned by omniauth which we don't want to send as params to register
-                skip_params = ['urls', 'nickname', 'Website']
-
-                # Bypass registration page if provider is in array
-                if bypass_register.include?(auth['provider'])
-                    redirect_to '/api/v1/register?' + auth_params_string(auth.info, skip_params)
-                    return     
-                else
-                    redirect_to '/register?' + auth_params_string(auth.info, skip_params)
-                    return
-                end
-
-            elsif signed_in?
-                # Either they're re-adding a provider or adding one already linked to another account
-                if @authentication.user_id == current_user.id
-                    redirect_to path
-                    return
-                else
-                    # TODO:: Multiple accounts code path, we probably wont get here for a while
-                end
-
-            else
-                # No user signed in but auth exists... Log the user in
-                self.current_user = User.find_by_id(@authentication.user_id)
+                ::Auth::Authentication.create_with_omniauth(auth, current_user.id)
                 redirect_to path
-                return                
-            end
-        end
-        
-        #
-        # Creates an authentication, associates the user with it and logs them in if not already
-        #
-        def omniauth_login(auth, path)
-            @authentication = Authentication.create_with_omniauth(auth)
-            if !signed_in?
-                user = User.find(@authentication.uid)
-                self.current_user = user
-            end
-            @authentication.user_id = current_user.id
-            @authentication.save
-            redirect_to path
-        end
 
-        def auth_params_string(authinfo, skip)
-            return authinfo.map{|k,v| "#{k}=#{v}" unless skip.include?(k)}.reject{|x| x.nil? }.join('&')
-        end
+            elsif auth_model.nil?
+                user = ::User.new(safe_params(auth.info))
+                if user.save
+                    ::Auth::Authentication.create_with_omniauth(auth, user.id)
+                    # TODO:: Consider what to do here on error...
+                    # i.e user created without auth due to database fail
 
-        def destroy
-            if params['redirect_uri']
-                path = params['redirect_uri']
+                    # Set the user in the session and complete the auth process
+                    remove_session
+                    new_session(user)
+                    redirect_to path
+                else
+                    # TODO:: check if existing user has any authentications
+                    # This works around the possible database error above.
+
+                    # Where /signup is a client side application
+                    store_social(auth[UID], auth[PROVIDER])
+                    redirect_to '/signup?' + auth_params_string(auth.info)
+                end
+
             else
-                path = root_path
+                # Log-in the user currently authenticating
+                remove_session if signed_in?
+                new_session(User.find_by_id(auth_model.user_id))
+                redirect_to path
             end
-            self.current_user = nil
-            reset_session
-            redirect_to path, notice: "Signed out!"
-        end
-        
-        def failure    
-            redirect_to root_path, alert: "Authentication failed, please try again."
         end
 
+        # Log off
+        def destroy
+            remove_session
+            redirect_to (params.permit(:continue)[:continue] || '/')
+        end
+
+
+        protected
+
+
+        def safe_params(authinfo)
+            ::ActionController::Parameters.new(authinfo).permit(:name, :email, :password, :password_confirmation)
+        end
+
+        def auth_params_string(authinfo)
+            authinfo.map{|k,v| "#{k}=#{v}" unless SKIP_PARAMS.include?(k)}.reject{|x| x.nil? }.join('&')
+        end
     end
-
 end
