@@ -78,7 +78,7 @@ module Auth
 
 
         def safe_params(authinfo)
-            ::ActionController::Parameters.new(authinfo).permit(:name, :email, :password, :password_confirmation)
+            ::ActionController::Parameters.new(authinfo).permit(:name, :email, :password, :password_confirmation, :metadata)
         end
 
         def auth_params_string(authinfo)

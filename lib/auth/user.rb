@@ -5,7 +5,7 @@ require 'digest/md5'
 class User < Couchbase::Model
     include ::CouchbaseId::Generator
 
-    attribute   :name, :email, :phone, :country, :image
+    attribute   :name, :email, :phone, :country, :image, :metadata
     attribute   :password_digest, :email_digest
 
 
@@ -45,6 +45,8 @@ class User < Couchbase::Model
 
 
     def email=(new_email)
+        new_email = '' if new_email.nil?
+
         @old_email ||= self.attributes[:email] || true
         new_email.strip! # returns nil if not altered
         self.attributes[:email] = new_email
