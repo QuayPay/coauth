@@ -22,7 +22,7 @@ module Auth
 
 
         # Local login
-        def local
+        def signin
             details = params.permit(:email, :password, :continue)
             user_id = User.bucket.get("useremail-#{details[:email]}", {quiet: true})
             if user_id

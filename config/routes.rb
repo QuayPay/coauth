@@ -7,8 +7,8 @@ Rails.application.routes.draw do
         get  '/logout', to: 'auth/sessions#destroy'  # deletes the session
         get  '/:provider/callback', to: 'auth/sessions#create' # omniauth route
         post '/:provider/callback', to: 'auth/sessions#create' # omniauth route
-        
-        post '/account', to: 'auth/sessions#local'   # local account login
+
+        post '/signin', to: 'auth/sessions#signin'   # local account login
         post '/signup', to: 'auth/signups#create'    # manual account creation
     end
 end
