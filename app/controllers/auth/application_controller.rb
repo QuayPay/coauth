@@ -17,7 +17,7 @@ module Auth
         def remove_session
             cookies.delete(:user,   path: '/auth')
             cookies.delete(:social, path: '/auth')
-            #reset_session
+            cookies.delete(:continue, path: '/auth')
             @current_user = nil
         end
 
@@ -47,6 +47,16 @@ module Auth
             }
             value[:secure] = true if Rails.env.production?
             cookies.encrypted[:social] = value
+        end
+
+        def set_continue(path)
+            value = {
+                value: path,
+                httponly: true,
+                path: '/auth'   # only sent to calls at this path
+            }
+            value[:secure] = true if Rails.env.production?
+            cookies.encrypted[:continue] = value
         end
 
         def current_user
