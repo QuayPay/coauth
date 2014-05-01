@@ -2,6 +2,7 @@ require 'openid/util'
 require 'openid/store/interface'
 require 'openid/store/nonce'
 require 'time'
+require 'base64'
 
 module OpenID
   module Store
@@ -21,7 +22,7 @@ module OpenID
         serialized = serialize(association)
         [nil, association.handle].each do |handle|
           key = assoc_key(server_url, handle)
-          @cache_client.set(key, serialized, :format => :plain, :ttl => expiry(association.lifetime))
+          @cache_client.set(key, serialized, :ttl => expiry(association.lifetime))
         end
       end
 
@@ -99,11 +100,11 @@ module OpenID
       end
 
       def serialize(assoc)
-        Marshal.dump(assoc)
+        Base64.encode64(Marshal.dump(assoc))
       end
 
       def deserialize(assoc_str)
-        Marshal.load(assoc_str)
+        Marshal.load(Base64.decode64(assoc_str))
       end
 
       # Convert a lifetime in seconds into a memcache expiry value
