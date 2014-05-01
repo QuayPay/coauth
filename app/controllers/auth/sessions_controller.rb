@@ -16,8 +16,34 @@ module Auth
         def new
             details = params.permit(:provider, :continue)
             remove_session
-            session[:continue] = details[:continue]
+            set_continue(details[:continue])
             redirect_to "/auth/#{details[:provider]}", :status => :see_other
+        end
+
+
+        # Local login
+        def signin
+            details = params.permit(:email, :password, :continue)
+            user_id = User.bucket.get("useremail-#{details[:email]}", {quiet: true})
+            if user_id
+                user = User.find(user_id)
+                if user && user.authenticate(details[:password])
+                    path = details[:continue]
+                    remove_session
+                    new_session(user)
+
+                    # If there is a path we are using an inline login form
+                    if path
+                        redirect_to path
+                    else
+                        render nothing: true, status: :accepted
+                    end
+                else
+                    login_failure(details)
+                end
+            else
+                login_failure(details)
+            end
         end
 
        
@@ -26,7 +52,7 @@ module Auth
         #
         def create
             # Where do we want to redirect to with our new session
-            path = session[:continue] || success_path
+            path = cookies.encrypted[:continue] || success_path
 
             # Get auth hash from omniauth
             auth = request.env[OMNIAUTH]
@@ -83,6 +109,16 @@ module Auth
 
         def auth_params_string(authinfo)
             authinfo.map{|k,v| "#{k}=#{v}" unless SKIP_PARAMS.include?(k)}.reject{|x| x.nil? }.join('&')
+        end
+
+        def login_failure(details)
+            path = details[:continue]
+            if path
+                # TODO:: need to add query component to indicate that the request was a failure
+                redirect_to request.referer || '/' # login failed, reload the page
+            else
+                render nothing: true, status: :unauthorized
+            end
         end
     end
 end
