@@ -9,7 +9,8 @@ class User < Couchbase::Model
     attribute   :password_digest, :email_digest
 
 
-    after_save  :update_email  # for uniqueness check
+    after_save    :update_email  # for uniqueness check
+    after_create  :update_email
 
 
     # PASSWORD ENCRYPTION::
