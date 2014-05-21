@@ -3,10 +3,12 @@ require 'digest/md5'
 
 
 class User < Couchbase::Model
+    design_document :user
     include ::CouchbaseId::Generator
 
-    attribute   :name, :email, :phone, :country, :image, :metadata
-    attribute   :password_digest, :email_digest
+    attribute :name, :email, :phone, :country, :image, :metadata
+    attribute :password_digest, :email_digest
+    attribute :created_at,  default: lambda { Time.now.to_i }
 
 
     after_save    :update_email  # for uniqueness check
