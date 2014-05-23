@@ -4,6 +4,10 @@ module Auth
         respond_to :json
 
 
+        def show
+            render text: "Authentication Failed: #{params.permit(:message)[:message]}"
+        end
+
         def create
             # Can't create a user if you are already logged in.
             if cookies.signed[:user]

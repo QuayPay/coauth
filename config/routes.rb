@@ -10,5 +10,7 @@ Rails.application.routes.draw do
 
         post '/signin', to: 'auth/sessions#signin'   # local account login
         post '/signup', to: 'auth/signups#create'    # manual account creation
+
+        get '/failure', to: 'auth/signups#show'      # Auth failure message
     end
 end
