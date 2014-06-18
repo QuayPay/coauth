@@ -1,6 +1,6 @@
 
 module Auth
-    class SignupsController < ApplicationController
+    class SignupsController < CoauthController
         respond_to :json
 
 

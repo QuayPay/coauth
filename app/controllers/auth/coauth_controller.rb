@@ -1,7 +1,7 @@
 require 'securerandom'
 
 module Auth
-    class ApplicationController < ActionController::Base
+    class CoauthController < ActionController::Base
         def success_path
             '/login_success.html'
         end

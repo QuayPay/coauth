@@ -6,6 +6,10 @@ class User < Couchbase::Model
     design_document :user
     include ::CouchbaseId::Generator
 
+
+    PUBLIC_DATA = {only: [:id, :email_digest, :nickname, :name, :created_at]}
+
+
     attribute :name, :email, :phone, :country, :image, :metadata
     attribute :password_digest, :email_digest
     attribute :created_at,  default: lambda { Time.now.to_i }

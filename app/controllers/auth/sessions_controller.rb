@@ -4,7 +4,7 @@ require 'set'
 
 
 module Auth
-    class SessionsController < ApplicationController
+    class SessionsController < CoauthController
         OMNIAUTH = 'omniauth.auth'.freeze
         UID = 'uid'.freeze
         PROVIDER = 'provider'.freeze
