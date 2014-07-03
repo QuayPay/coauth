@@ -33,18 +33,22 @@ class User < Couchbase::Model
     end
 
     def authenticate(unencrypted_password)
-        if SCrypt::Password.new(password_digest) == unencrypted_password
+        if ::SCrypt::Password.new(password_digest || '') == unencrypted_password
             self
         else
             false
         end
+    rescue ::SCrypt::Errors::InvalidHash
+      # accounts created with social logins will have an empty password_digest
+      # which causes SCrypt to raise an InvalidHash exception
+      false
     end
 
     # Encrypts the password into the password_digest attribute.
     def password=(unencrypted_password)
         @password = unencrypted_password
-        if unencrypted_password && !unencrypted_password.empty?
-            self.password_digest = SCrypt::Password.create(unencrypted_password)
+        unless unencrypted_password.empty?
+            self.password_digest = ::SCrypt::Password.create(unencrypted_password)
         end
     end
     # --------------------

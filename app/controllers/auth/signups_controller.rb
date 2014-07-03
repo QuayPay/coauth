@@ -10,8 +10,8 @@ module Auth
 
         def create
             # Can't create a user if you are already logged in.
-            if cookies.signed[:user]
-                render(nothing: true, status: :forbidden)
+            if cookies.encrypted[:user]
+                render nothing: true, status: :forbidden
 
             # No user logged in check if they are signing in using a social auth
             else
@@ -23,7 +23,7 @@ module Auth
                     # Grab data from cookie and prevent session fixation
                     uid = social[:uid]
                     provider = social[:provider]
-                    
+
                     # Create the user
                     # TODO:: in case of crash, we need to check if user can't be created due to
                     #        existing user account with no authentications
@@ -36,7 +36,7 @@ module Auth
                         # Set the user in the session and complete the auth process
                         remove_session
                         new_session(user)
-                        
+
                         # we're in a pop-up so redirect to a page that can communicate to the main page
                         redirect_to path
                     else

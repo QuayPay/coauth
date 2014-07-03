@@ -46,7 +46,7 @@ module Auth
             end
         end
 
-       
+
         #
         # Run each time a user logs in via social
         #
@@ -59,7 +59,7 @@ module Auth
 
             # Find an authentication or create an authentication
             auth_model = ::Auth::Authentication.from_omniauth(auth)
-            
+
             if auth_model.nil? && signed_in?
                 # Adding a new auth to existing user
                 ::Auth::Authentication.create_with_omniauth(auth, current_user.id)
@@ -108,7 +108,7 @@ module Auth
         end
 
         def auth_params_string(authinfo)
-            authinfo.map{|k,v| "#{k}=#{v}" unless SKIP_PARAMS.include?(k)}.reject{|x| x.nil? }.join('&')
+            authinfo.map {|k,v| "#{k}=#{URI.encode_www_form_component(v)}" unless SKIP_PARAMS.include?(k)}.compact.join('&')
         end
 
         def login_failure(details)
