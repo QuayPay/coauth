@@ -82,7 +82,7 @@ module Auth
 
                     # Where /signup is a client side application
                     store_social(auth[UID], auth[PROVIDER])
-                    redirect_to '/signup?' + auth_params_string(auth.info)
+                    redirect_to '/signup/index.html?' + auth_params_string(auth.info)
                 end
 
             else
