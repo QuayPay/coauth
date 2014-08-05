@@ -60,7 +60,7 @@ class User < Couchbase::Model
 
         @old_email ||= self.attributes[:email] || true
         new_email.strip! # returns nil if not altered
-        self.attributes[:email] = new_email
+        self.attributes[:email] = new_email.downcase!
 
         # For looking up user pictures without making the email public
         self.email_digest = Digest::MD5.hexdigest(new_email)
