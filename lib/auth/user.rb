@@ -16,7 +16,6 @@ class User < Couchbase::Model
 
 
     after_save    :update_email  # for uniqueness check
-    after_create  :update_email
 
 
     # PASSWORD ENCRYPTION::
@@ -56,6 +55,7 @@ class User < Couchbase::Model
 
 
     def email=(new_email)
+        # in case email isn't supplied on auth
         new_email = '' if new_email.nil?
 
         @old_email ||= self.attributes[:email] || true
@@ -64,6 +64,11 @@ class User < Couchbase::Model
 
         # For looking up user pictures without making the email public
         self.email_digest = Digest::MD5.hexdigest(new_email)
+    end
+
+    def self.find_by_email(email)
+        id = User.bucket.get("useremail-#{email.downcase}", {quiet: true})
+        User.find_by_id(id) if id
     end
 
 
@@ -84,8 +89,9 @@ class User < Couchbase::Model
 
     def update_email
         if @old_email && @old_email != self.email
-            User.bucket.delete("useremail-#{@old_email}", {quiet: true}) unless @old_email == true
-            User.bucket.set("useremail-#{self.email}", self.id)
+            bucket = User.bucket
+            bucket.delete("useremail-#{@old_email}", {quiet: true}) unless @old_email == true
+            bucket.set("useremail-#{self.email}", self.id)
         end
         @old_email = nil
     end
