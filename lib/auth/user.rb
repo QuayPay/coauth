@@ -15,9 +15,6 @@ class User < Couchbase::Model
     attribute :created_at,  default: lambda { Time.now.to_i }
 
 
-    after_save    :update_email  # for uniqueness check
-
-
     # PASSWORD ENCRYPTION::
     # ---------------------
     attr_reader   :password
@@ -59,8 +56,9 @@ class User < Couchbase::Model
         new_email = '' if new_email.nil?
 
         @old_email ||= self.attributes[:email] || true
-        new_email.strip! # returns nil if not altered
-        self.attributes[:email] = new_email.downcase!
+        new_email.strip!     # ! methods return nil if not altered
+        new_email.downcase!
+        self.attributes[:email] = new_email
 
         # For looking up user pictures without making the email public
         self.email_digest = Digest::MD5.hexdigest(new_email)
@@ -78,8 +76,8 @@ class User < Couchbase::Model
     # Validations
     validates :email,   :presence => true
     validates :email,   :email => true
-    validate  :email_unique
 
+    validate  :email_unique
     def email_unique
         result = User.bucket.get("useremail-#{self.email}", {quiet: true})
         if result != nil && result != self.id
@@ -87,6 +85,7 @@ class User < Couchbase::Model
         end
     end
 
+    after_save :update_email
     def update_email
         if @old_email && @old_email != self.email
             bucket = User.bucket
