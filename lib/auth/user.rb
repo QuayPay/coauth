@@ -94,4 +94,10 @@ class User < Couchbase::Model
         end
         @old_email = nil
     end
+
+    before_delete :delete_email_key
+    def delete_email_key
+        User.bucket.delete("useremail-#{self.email}")
+    end
 end
+
