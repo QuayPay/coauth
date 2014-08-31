@@ -14,6 +14,9 @@ class User < Couchbase::Model
     attribute :password_digest, :email_digest
     attribute :created_at,  default: lambda { Time.now.to_i }
 
+    # dirty attributes for email
+    define_attribute_methods :email
+
 
     # PASSWORD ENCRYPTION::
     # ---------------------
@@ -54,11 +57,9 @@ class User < Couchbase::Model
     def email=(new_email)
         # in case email isn't supplied on auth
         new_email = '' if new_email.nil?
-
-        @old_email ||= self.attributes[:email] || true
         new_email.strip!     # ! methods return nil if not altered
         new_email.downcase!
-        self.attributes[:email] = new_email
+        write_attribute(:email, new_email)
 
         # For looking up user pictures without making the email public
         self.email_digest = Digest::MD5.hexdigest(new_email)
@@ -85,13 +86,21 @@ class User < Couchbase::Model
         end
     end
 
-    after_save :update_email
+    before_save :update_email
     def update_email
-        if @old_email && @old_email != self.email
+        if self.email_changed?
+            old_email = self.email_was
+            old_email.downcase! if old_email
+        elsif not self.exists?
+            old_email = false
+        else
+            return
+        end
+
+        if old_email != self.email
             bucket = User.bucket
-            bucket.delete("useremail-#{@old_email}", {quiet: true}) unless @old_email == true
+            bucket.delete("useremail-#{old_email}", {quiet: true}) if old_email
             bucket.set("useremail-#{self.email}", self.id)
         end
-        @old_email = nil
     end
 end
