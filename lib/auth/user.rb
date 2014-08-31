@@ -103,4 +103,10 @@ class User < Couchbase::Model
             bucket.set("useremail-#{self.email}", self.id)
         end
     end
+
+    before_delete :delete_email_key
+    def delete_email_key
+        User.bucket.delete("useremail-#{self.email}")
+    end
 end
+
