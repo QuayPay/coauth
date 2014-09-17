@@ -2,6 +2,8 @@ require 'securerandom'
 
 module Auth
     class CoauthController < ActionController::Base
+        include Auth::UserHelper 
+
         def success_path
             '/login_success.html'
         end
@@ -14,13 +16,6 @@ module Auth
         protected
 
 
-        def remove_session
-            cookies.delete(:user,   path: '/auth')
-            cookies.delete(:social, path: '/auth')
-            cookies.delete(:continue, path: '/auth')
-            @current_user = nil
-        end
-
         def new_session(user)
             @current_user = user
             value = {
@@ -31,7 +26,7 @@ module Auth
                 httponly: true,
                 path: '/auth'   # only sent to calls at this path
             }
-            value[:secure] = true if Rails.env.production?
+            value[:secure] = Rails.env.production?
             cookies.encrypted[:user] = value
         end
 
@@ -45,7 +40,7 @@ module Auth
                 httponly: true,
                 path: '/auth'   # only sent to calls at this path
             }
-            value[:secure] = true if Rails.env.production?
+            value[:secure] = Rails.env.production?
             cookies.encrypted[:social] = value
         end
 
@@ -55,17 +50,8 @@ module Auth
                 httponly: true,
                 path: '/auth'   # only sent to calls at this path
             }
-            value[:secure] = true if Rails.env.production?
+            value[:secure] = Rails.env.production?
             cookies.encrypted[:continue] = value
-        end
-
-        def current_user
-            user = cookies.encrypted[:user]
-            @current_user ||= User.find(user[:id]) if user
-        end
-
-        def signed_in?
-            !!current_user
         end
     end
 end

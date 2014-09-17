@@ -12,5 +12,7 @@ Rails.application.routes.draw do
         post '/signup', to: 'auth/signups#create'    # manual account creation
 
         get '/failure', to: 'auth/signups#show'      # Auth failure message
+
+        post '/token', to: 'auth/trusts#create'      # Refresh tokens for web apps
     end
 end
