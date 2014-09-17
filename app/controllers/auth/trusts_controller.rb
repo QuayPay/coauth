@@ -32,17 +32,17 @@ module Auth
             safe = trusts_safe_params
 
             if safe[:grant_type] == 'authorization_code'
-                #if current_user
+                if current_user
                     app, secret = get_trust_data(safe[:client_id])
 
                     # Make the now enhanced OAuth request
                     yield
                     remove_session
                     extract_and_save_token(app.redirect_uri, secret)
-                #else
+                else
                     # fail the request - not authenticated
-                #    render nothing: true, status: :unauthorized
-                #end
+                    render nothing: true, status: :unauthorized
+                end
             elsif safe[:grant_type] == 'refresh_token'
                 app, secret = get_trust_data(safe[:client_id])
 
