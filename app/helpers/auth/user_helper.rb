@@ -5,7 +5,6 @@ module Auth
             cookies.delete(:user,   path: '/auth')
             cookies.delete(:social, path: '/auth')
             cookies.delete(:continue, path: '/auth')
-            cookies.delete(:trust, path: '/auth')
             @current_user = nil
         end
 

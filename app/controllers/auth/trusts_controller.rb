@@ -37,19 +37,17 @@ module Auth
 
                     # Make the now enhanced OAuth request
                     yield
-                    remove_session
-                    extract_and_save_token(app.redirect_uri, secret)
+                    extract_and_save_token(app)
                 else
                     # fail the request - not authenticated
                     response.status = 401
                     render nothing: true, status: :unauthorized
                 end
             elsif safe[:grant_type] == 'refresh_token'
-                token = cookies[:trust]
+                app, secret = get_trust_data(safe[:client_id])
+                token = cookies[cookie_name(app)]
 
                 if token
-                    app, secret = get_trust_data(safe[:client_id])
-
                     # Grab the refresh token from the cookie (we used passed in redirect uri this time)
                     key   = ActiveSupport::KeyGenerator.new(safe[:redirect_uri]).generate_key(secret)
                     crypt = ActiveSupport::MessageEncryptor.new(key)
@@ -58,8 +56,7 @@ module Auth
 
                     # Make the now enhanced OAuth request
                     yield
-                    remove_session
-                    extract_and_save_token(app.redirect_uri, secret)
+                    extract_and_save_token(app)
                 else
                     # fail the request
                     response.status = 401
@@ -74,7 +71,9 @@ module Auth
 
 
         def destroy
-            remove_session
+            safe = trusts_safe_params
+            app = ::Doorkeeper::Application.find(safe[:client_id])
+            remove_trust(app)
             render nothing: true
         end
 
@@ -95,8 +94,23 @@ module Auth
             return app, secret
         end
 
-        def extract_and_save_token(redirect, secret)
+        def remove_trust(app)
+            remove_session
+            cookies.delete(cookie_name(app), path: '/auth')
+        end
+
+        def cookie_name(app)
+            "trust-#{app.name}"
+        end
+
+        def extract_and_save_token(app)
             return unless response.status == 200
+            remove_trust(app)
+
+            # Grab the data we need
+            redirect = app.redirect_uri
+            secret = app.secret
+            cookie = cookie_name(app)
 
             # Extract the refresh token from the response
             resp_data = ::ActiveSupport::JSON.decode response.body
@@ -115,7 +129,7 @@ module Auth
                 path: '/auth'   # only sent to calls at this path
             }
             value[:secure] = Rails.env.production?
-            cookies.permanent[:trust] = value
+            cookies.permanent[cookie] = value
         end
     end
 end
