@@ -18,7 +18,7 @@ module Auth
         include Auth::UserHelper
 
 
-        around_action :enhance_trust_request
+        around_action :enhance_trust_request, only: :create
 
 
         # This provides a secure refresh token to un-trusted sources
@@ -41,26 +41,41 @@ module Auth
                     extract_and_save_token(app.redirect_uri, secret)
                 else
                     # fail the request - not authenticated
+                    response.status = 401
                     render nothing: true, status: :unauthorized
                 end
             elsif safe[:grant_type] == 'refresh_token'
-                app, secret = get_trust_data(safe[:client_id])
+                token = cookies[:trust]
 
-                # Grab the refresh token from the cookie (we used passed in redirect uri this time)
-                token = cookies.encrypted[:trust][:refresh]
-                key   = ActiveSupport::KeyGenerator.new(safe[:redirect_uri]).generate_key(secret)
-                crypt = ActiveSupport::MessageEncryptor.new(key)
-                token = crypt.decrypt_and_verify(token)
-                request.parameters['refresh_token'] = token
+                if token
+                    app, secret = get_trust_data(safe[:client_id])
 
-                # Make the now enhanced OAuth request
-                yield
-                remove_session
-                extract_and_save_token(app.redirect_uri, secret)
+                    # Grab the refresh token from the cookie (we used passed in redirect uri this time)
+                    key   = ActiveSupport::KeyGenerator.new(safe[:redirect_uri]).generate_key(secret)
+                    crypt = ActiveSupport::MessageEncryptor.new(key)
+                    token = crypt.decrypt_and_verify(token)
+                    request.parameters['refresh_token'] = token
+
+                    # Make the now enhanced OAuth request
+                    yield
+                    remove_session
+                    extract_and_save_token(app.redirect_uri, secret)
+                else
+                    # fail the request
+                    response.status = 401
+                    render nothing: true, status: :unauthorized
+                end
             else
                 # fail the request
+                response.status = 400
                 render nothing: true, status: :bad_request
             end
+        end
+
+
+        def destroy
+            remove_session
+            render nothing: true
         end
 
 
@@ -95,15 +110,12 @@ module Auth
 
             # Set the token as an encrypted cookie
             value = {
-                value: {
-                    refresh: token,
-                    salt: SecureRandom.hex[0..(1 + rand(31))]   # Variable length 1->32
-                },
+                value: token,
                 httponly: true,
                 path: '/auth'   # only sent to calls at this path
             }
             value[:secure] = Rails.env.production?
-            cookies.permanent.encrypted[:trust] = value
+            cookies.permanent[:trust] = value
         end
     end
 end
