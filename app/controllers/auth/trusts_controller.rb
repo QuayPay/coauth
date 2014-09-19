@@ -45,7 +45,7 @@ module Auth
                 end
             elsif safe[:grant_type] == 'refresh_token'
                 app, secret = get_trust_data(safe[:client_id])
-                token = cookies[cookie_name(app)]
+                token = cookies.encrypted[cookie_name(app)]
 
                 if token
                     # Grab the refresh token from the cookie (we used passed in redirect uri this time)
@@ -129,7 +129,7 @@ module Auth
                 path: '/auth'   # only sent to calls at this path
             }
             value[:secure] = Rails.env.production?
-            cookies.permanent[cookie] = value
+            cookies.permanent.encrypted[cookie] = value
         end
     end
 end
