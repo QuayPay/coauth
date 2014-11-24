@@ -90,7 +90,6 @@ class User < Couchbase::Model
     def update_email
         if self.email_changed?
             old_email = self.email_was
-            old_email.downcase! if old_email
         elsif not self.exists?
             old_email = false
         else
