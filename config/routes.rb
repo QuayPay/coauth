@@ -13,7 +13,8 @@ Rails.application.routes.draw do
 
         get '/failure', to: 'auth/signups#show'      # Auth failure message
 
-        post   '/token', to: 'auth/trusts#create'    # Refresh tokens for web apps
-        delete '/token', to: 'auth/trusts#destroy'   # Remove the 
+        # Refresh tokens for web apps
+        post   '/token', to: 'auth/trusts#create'
+        match  '/token' => 'auth/trusts#options', :via => :options
     end
 end
