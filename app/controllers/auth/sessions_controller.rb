@@ -38,6 +38,8 @@ module Auth
                     else
                         render nothing: true, status: :accepted
                     end
+
+                    Auth::Authentication.after_login_block.call(user)
                 else
                     login_failure(details)
                 end
@@ -64,6 +66,7 @@ module Auth
                 # Adding a new auth to existing user
                 ::Auth::Authentication.create_with_omniauth(auth, current_user.id)
                 redirect_to path
+                Auth::Authentication.after_login_block.call(current_user)
 
             elsif auth_model.nil?
                 user = ::User.new(safe_params(auth.info))
@@ -76,6 +79,7 @@ module Auth
                     remove_session
                     new_session(user)
                     redirect_to path
+                    Auth::Authentication.after_login_block.call(user)
                 else
                     # TODO:: check if existing user has any authentications
                     # This works around the possible database error above.
@@ -88,8 +92,10 @@ module Auth
             else
                 # Log-in the user currently authenticating
                 remove_session if signed_in?
-                new_session(User.find_by_id(auth_model.user_id))
+                user = User.find_by_id(auth_model.user_id)
+                new_session(user)
                 redirect_to path
+                Auth::Authentication.after_login_block.call(user)
             end
         end
 

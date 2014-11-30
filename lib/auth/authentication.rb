@@ -25,6 +25,14 @@ module Auth
             authen.create!
         end
 
+        def self.after_login(&block)
+            @after_login = block
+        end
+
+        def self.after_login_block
+            (@after_login) || (Proc.new {|user|})
+        end
+
 
         protected
 

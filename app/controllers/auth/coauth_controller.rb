@@ -26,7 +26,7 @@ module Auth
                 httponly: true,
                 path: '/auth'   # only sent to calls at this path
             }
-            value[:secure] = Rails.env.production?
+            #value[:secure] = Rails.env.production?
             cookies.encrypted[:user] = value
         end
 
@@ -40,7 +40,7 @@ module Auth
                 httponly: true,
                 path: '/auth'   # only sent to calls at this path
             }
-            value[:secure] = Rails.env.production?
+            #value[:secure] = Rails.env.production?
             cookies.encrypted[:social] = value
         end
 
@@ -50,7 +50,7 @@ module Auth
                 httponly: true,
                 path: '/auth'   # only sent to calls at this path
             }
-            value[:secure] = Rails.env.production?
+            #value[:secure] = Rails.env.production?
             cookies.encrypted[:continue] = value
         end
     end
