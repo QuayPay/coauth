@@ -59,6 +59,10 @@ module Auth
             # Get auth hash from omniauth
             auth = request.env[OMNIAUTH]
 
+            if auth.nil?
+                return login_failure({})
+            end
+
             # Find an authentication or create an authentication
             auth_model = ::Auth::Authentication.from_omniauth(auth)
 

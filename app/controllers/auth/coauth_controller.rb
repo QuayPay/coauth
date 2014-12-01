@@ -4,7 +4,7 @@ module Auth
     class CoauthController < ActionController::Base
         include Auth::UserHelper
 
-        USE_SSL = Rails.env.production? && !ENV['COAUTH_NO_SSL'].nil?
+        USE_SSL = Rails.env.production? && (ENV['COAUTH_NO_SSL'].nil? || ENV['COAUTH_NO_SSL'] == 'false')
 
         def success_path
             '/login_success.html'
