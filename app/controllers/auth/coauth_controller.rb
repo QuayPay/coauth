@@ -2,7 +2,9 @@ require 'securerandom'
 
 module Auth
     class CoauthController < ActionController::Base
-        include Auth::UserHelper 
+        include Auth::UserHelper
+
+        USE_SSL = Rails.env.production? && !ENV['COAUTH_NO_SSL'].nil?
 
         def success_path
             '/login_success.html'
@@ -26,7 +28,7 @@ module Auth
                 httponly: true,
                 path: '/auth'   # only sent to calls at this path
             }
-            #value[:secure] = Rails.env.production?
+            value[:secure] = USE_SSL
             cookies.encrypted[:user] = value
         end
 
@@ -40,7 +42,7 @@ module Auth
                 httponly: true,
                 path: '/auth'   # only sent to calls at this path
             }
-            #value[:secure] = Rails.env.production?
+            value[:secure] = USE_SSL
             cookies.encrypted[:social] = value
         end
 
@@ -50,7 +52,7 @@ module Auth
                 httponly: true,
                 path: '/auth'   # only sent to calls at this path
             }
-            #value[:secure] = Rails.env.production?
+            value[:secure] = USE_SSL
             cookies.encrypted[:continue] = value
         end
     end
