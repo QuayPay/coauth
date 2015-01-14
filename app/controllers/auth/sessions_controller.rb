@@ -74,6 +74,12 @@ module Auth
 
             elsif auth_model.nil?
                 user = ::User.new(safe_params(auth.info))
+
+                unless Authority.nil?
+                    authority = Authority.find_by_domain(request.host)
+                    user.authority_id = authority.id
+                end
+                
                 if user.save
                     ::Auth::Authentication.create_with_omniauth(auth, user.id)
                     # TODO:: Consider what to do here on error...
@@ -83,7 +89,7 @@ module Auth
                     remove_session
                     new_session(user)
                     redirect_to path
-                    Auth::Authentication.after_login_block.call(user)
+                    Auth::Authentication.after_login_block.call(user, auth[PROVIDER])
                 else
                     # TODO:: check if existing user has any authentications
                     # This works around the possible database error above.

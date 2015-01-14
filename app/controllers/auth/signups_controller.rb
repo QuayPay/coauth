@@ -28,6 +28,12 @@ module Auth
                     # TODO:: in case of crash, we need to check if user can't be created due to
                     #        existing user account with no authentications
                     user = User.new(safe_params)
+
+                    unless Authority.nil?
+                        authority = Authority.find_by_domain(request.host)
+                        user.authority_id = authority.id
+                    end
+
                     if user.save
                         auth = Auth::Authentication.new({provider: provider, uid: uid})
                         auth.user_id = user.id
@@ -41,6 +47,7 @@ module Auth
                         redirect_to path
                     else
                         # Email address taken (all other validation can be checked on the client)
+                        p user.errors
                         render(nothing: true, status: :conflict)
                     end
                 else

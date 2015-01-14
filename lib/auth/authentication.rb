@@ -30,7 +30,7 @@ module Auth
         end
 
         def self.after_login_block
-            (@after_login) || (Proc.new {|user|})
+            (@after_login) || (Proc.new {|user, provider|})
         end
 
 
