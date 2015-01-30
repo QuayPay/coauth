@@ -74,6 +74,7 @@ module Auth
 
             elsif auth_model.nil?
                 user = ::User.new(safe_params(auth.info))
+                user.authority_id = 'sgrp-B0'
 
                 unless Authority.nil?
                     authority = Authority.find_by_domain(request.host)
