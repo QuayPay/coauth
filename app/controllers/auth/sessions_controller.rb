@@ -75,9 +75,9 @@ module Auth
             elsif auth_model.nil?
                 user = ::User.new(safe_params(auth.info))
 
-                if defined?(Authority)
+                if defined?(::Authority)
                     #user.authority_id = 'sgrp-B0'   # don't think we need this
-                    authority = Authority.find_by_domain(request.host)
+                    authority = ::Authority.find_by_domain(request.host)
                     user.authority_id = authority.id
                 end
                 
