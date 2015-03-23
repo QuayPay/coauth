@@ -1,4 +1,7 @@
 module Auth
+    UID = 'uid'.freeze
+    PROVIDER = 'provider'.freeze
+
     class Authentication < Couchbase::Model
         design_document :oauth  # less redundant data with short names
         before_create :generate_id
@@ -14,13 +17,13 @@ module Auth
         end
 
         def self.from_omniauth(auth)
-            self.find_by_id('auth-' + auth['provider'] + '-' + auth['uid'])
+            self.find_by_id('auth-' + auth[PROVIDER] + '-' + auth[UID])
         end
 
         def self.create_with_omniauth(auth, user_id)
             authen = self.new
-            authen.provider = auth['provider']
-            authen.uid = auth['uid']
+            authen.provider = auth[PROVIDER]
+            authen.uid = auth[UID]
             authen.user_id = user_id
             authen.create!
         end

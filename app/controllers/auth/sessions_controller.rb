@@ -6,9 +6,6 @@ require 'set'
 module Auth
     class SessionsController < CoauthController
         OMNIAUTH = 'omniauth.auth'.freeze
-        UID = 'uid'.freeze
-        PROVIDER = 'provider'.freeze
-
         SKIP_PARAMS = Set.new(['urls', 'Website']) # Params we don't want to send to register
 
 
@@ -90,7 +87,7 @@ module Auth
                     remove_session
                     new_session(user)
                     redirect_to path
-                    Auth::Authentication.after_login_block.call(user, auth[PROVIDER])
+                    Auth::Authentication.after_login_block.call(user, auth[PROVIDER], auth)
                 else
                     # TODO:: check if existing user has any authentications
                     # This works around the possible database error above.
