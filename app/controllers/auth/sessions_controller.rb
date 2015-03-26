@@ -98,12 +98,17 @@ module Auth
                 end
 
             else
-                # Log-in the user currently authenticating
-                remove_session if signed_in?
-                user = User.find_by_id(auth_model.user_id)
-                new_session(user)
-                redirect_to path
-                Auth::Authentication.after_login_block.call(user)
+                begin
+                    # Log-in the user currently authenticating
+                    remove_session if signed_in?
+                    user = User.find_by_id(auth_model.user_id)
+                    new_session(user)
+                    redirect_to path
+                    Auth::Authentication.after_login_block.call(user)
+                rescue => e
+                    logger.error "Error with user account. Possibly due to a database failure:\nAuth model: #{auth_model.inspect}\n#{e.inspect}"
+                    raise e
+                end
             end
         end
 
