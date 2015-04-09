@@ -28,20 +28,31 @@ module Auth
             authen.create!
         end
 
+        # the before_signup block gives installations the ability to reject
+        # signups or modify the user record before any user/auth records are
+        # stored. if the block returns false, user signup is rejected.
+        def self.before_signup(&block)
+            @before_signup = block
+        end
+
+        def self.before_signup_block
+            (@before_signup) || (Proc.new {|user, provider, auth| true })
+        end
+
+        # the after_login block gives installations the ability to perform post
+        # login functions, such as syncing user permissions from a remote server
         def self.after_login(&block)
             @after_login = block
         end
 
         def self.after_login_block
-            (@after_login) || (Proc.new {|user, provider|})
+            (@after_login) || (Proc.new {|user, provider, auth|})
         end
 
 
         protected
-
-        
-        def generate_id
-            self.id = 'auth-' + self.provider + '-' + self.uid
-        end
+            def generate_id
+                self.id = 'auth-' + self.provider + '-' + self.uid
+            end
     end
 end

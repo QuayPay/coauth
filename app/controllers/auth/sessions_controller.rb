@@ -63,40 +63,47 @@ module Auth
             # Find an authentication or create an authentication
             auth_model = ::Auth::Authentication.from_omniauth(auth)
 
+            # adding a new auth to existing user
             if auth_model.nil? && signed_in?
-                # Adding a new auth to existing user
                 ::Auth::Authentication.create_with_omniauth(auth, current_user.id)
                 redirect_to path
                 Auth::Authentication.after_login_block.call(current_user)
 
+            # new auth and new user
             elsif auth_model.nil?
                 user = ::User.new(safe_params(auth.info))
 
                 if defined?(::Authority)
-                    #user.authority_id = 'sgrp-B0'   # don't think we need this
                     authority = ::Authority.find_by_domain(request.host)
                     user.authority_id = authority.id
                 end
-                
-                if user.save
-                    ::Auth::Authentication.create_with_omniauth(auth, user.id)
-                    # TODO:: Consider what to do here on error...
-                    # i.e user created without auth due to database fail
 
-                    # Set the user in the session and complete the auth process
+                # now the user record is initialised (but not yet saved), give
+                # the installation the opportunity to modify the user record or
+                # reject the signup outright
+                result = Auth::Authentication.before_signup_block.call(user, auth[PROVIDER], auth)
+                
+                if result != false && user.save
+                    # user is created, associate an auth record or raise exception
+                    Auth::Authentication.create_with_omniauth(auth, user.id)
+
+                    # make the new user the currently logged in user
                     remove_session
                     new_session(user)
+
+                    # redirect the user to the page they were trying to access and
+                    # run any custom post-login actions
                     redirect_to path
                     Auth::Authentication.after_login_block.call(user, auth[PROVIDER], auth)
                 else
-                    # TODO:: check if existing user has any authentications
-                    # This works around the possible database error above.
-
-                    # Where /signup is a client side application
+                    # user save failed (db or validation error) or the before
+                    # signup block returned false. redirect back to a signup
+                    # page, where /signup is a required client side path.
                     store_social(auth[UID], auth[PROVIDER])
                     redirect_to '/signup/index.html?' + auth_params_string(auth.info)
                 end
 
+            # existing auth and existing user
             else
                 begin
                     # Log-in the user currently authenticating
