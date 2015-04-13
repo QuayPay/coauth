@@ -10,10 +10,13 @@ module Auth
         attribute :uid, :provider, :user_id
 
 
-        # TODO:: Create this view
         view :by_user_id
         def self.by_user(user)
             by_user_id(key: user.id, stale: false)
+        end
+
+        def self.for_user(user_id)
+            by_user_id(key: user_id, stale: false)
         end
 
         def self.from_omniauth(auth)
