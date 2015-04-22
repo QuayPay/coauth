@@ -16,5 +16,7 @@ Rails.application.routes.draw do
         # Refresh tokens for web apps
         post   '/token', to: 'auth/trusts#create'
         match  '/token' => 'auth/trusts#options', :via => :options
+
+        get '/authority', to: 'auth/authorities#current'
     end
 end

@@ -8,8 +8,11 @@ require 'auth/user'
 require 'open_id/store/couch_store'
 
 
-# old_docs = ::Couchbase::Model::Configuration.design_documents_paths
-# ::Couchbase::Model::Configuration.design_documents_paths = [File.expand_path(File.join(File.expand_path("../", __FILE__), 'auth'))]
+# Couchbase helpers we use across applications
+require 'couch_utils/ensure_unique'
+require 'couch_utils/enum'
+require 'couch_utils/has_many'
+require 'couch_utils/index'
+require 'couch_utils/join'
 
-# ::Auth::Authentication.ensure_design_document!
-# ::Couchbase::Model::Configuration.design_documents_paths = old_docs
+require 'auth/authority'
