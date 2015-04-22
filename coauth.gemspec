@@ -21,6 +21,7 @@ Gem::Specification.new do |s|
   s.add_dependency "omniauth-identity"
   s.add_dependency "scrypt"
   s.add_dependency "email_validator"
+  s.add_dependency "addressable"
 
   s.add_development_dependency "rails", "~> 4.0.0"
   s.add_development_dependency "rspec"
