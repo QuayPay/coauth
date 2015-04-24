@@ -47,19 +47,24 @@ module Auth
                         redirect_to path
                     else
                         # Email address taken (all other validation can be checked on the client)
-                        p user.errors
                         render(nothing: true, status: :conflict)
                     end
                 else
                     # This is manual sign up form
-                    user = User.create(safe_params)
-                    if user
+                    # If a user uses this, they should have a password
+
+                    if !safe_params.key?('password')
+                        render json: { password: ["must be present"]}, status: 406
+                        return
+                    end
+                    user = User.new(safe_params)
+                    if user.save
                         remove_session
                         new_session(user)
                         redirect_to path
                     else
                         # Email address taken
-                        render nothing: true, status: :conflict
+                        render json: user.errors , status: :conflict
                     end
                 end
             end

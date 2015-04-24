@@ -5,6 +5,7 @@ require 'digest/md5'
 class User < Couchbase::Model
     design_document :user
     include ::CouchbaseId::Generator
+    include ActiveModel::Dirty
 
 
     PUBLIC_DATA = {only: [:id, :email_digest, :nickname, :name, :created_at]}
@@ -16,6 +17,7 @@ class User < Couchbase::Model
 
     # dirty attributes for email
     define_attribute_methods :email
+
 
 
     # PASSWORD ENCRYPTION::
@@ -55,6 +57,7 @@ class User < Couchbase::Model
 
 
     def email=(new_email)
+        email_will_change!
         # in case email isn't supplied on auth
         new_email = '' if new_email.nil?
         new_email.strip!     # ! methods return nil if not altered
@@ -71,23 +74,33 @@ class User < Couchbase::Model
     end
 
 
+    # before_create :set_email
+
     protected
 
 
     # Validations
     validates :email,   :presence => true
     validates :email,   :email => true
+    validates :password, length: { minimum: 6, message: 'must be at least 6 characters' }, allow_blank: true
 
     validate  :email_unique
     def email_unique
         result = User.bucket.get("useremail-#{self.email}", {quiet: true})
+
         if result != nil && result != self.id
-            errors.add(:email, 'must be unique')
+            errors.add(:email, 'already exists')
         end
+    end
+
+    after_create :set_email
+    def set_email
+        User.bucket.set("useremail-#{self.email}", self.id)
     end
 
     before_save :update_email
     def update_email
+        # Existing user accounts should always have an email
         if self.email_changed?
             old_email = self.email_was
         elsif not self.exists?
@@ -96,7 +109,8 @@ class User < Couchbase::Model
             return
         end
 
-        if old_email != self.email
+        # If old_email is false, email wasn't changed (it was just created) so don't overwrite
+        if old_email && old_email != self.email
             bucket = User.bucket
             bucket.delete("useremail-#{old_email}", {quiet: true}) if old_email
             bucket.set("useremail-#{self.email}", self.id)
