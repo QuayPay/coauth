@@ -1,5 +1,6 @@
 require 'email_validator'
 require 'digest/md5'
+require 'scrypt'
 
 
 class User < Couchbase::Model
