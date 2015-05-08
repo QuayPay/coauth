@@ -8,6 +8,8 @@ class User < Couchbase::Model
     include ::CouchbaseId::Generator
     include ActiveModel::Dirty
 
+    extend EnsureUnique
+
 
     PUBLIC_DATA = {only: [:id, :email_digest, :nickname, :name, :created_at]}
 

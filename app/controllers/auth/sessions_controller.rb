@@ -53,6 +53,13 @@ module Auth
         # Run each time a user logs in via social
         #
         def create
+
+            if params.key?('code') && params.key?('state') && params[:provider] != 'generic'
+                # We are returning from generic oauth login
+                redirect_to '/auth/generic/callback?id=' + params[:provider]+ '&code=' + params[:code] + '&state=' + params[:state]
+                return
+            end
+
             # Where do we want to redirect to with our new session
             path = cookies.encrypted[:continue] || success_path
 
@@ -76,10 +83,8 @@ module Auth
             elsif auth_model.nil?
                 user = ::User.new(safe_params(auth.info))
 
-                if defined?(::Authority)
-                    authority = ::Authority.find_by_domain(request.host)
-                    user.authority_id = authority.id
-                end
+                authority = current_authority
+                user.authority_id = authority.id
 
                 # now the user record is initialised (but not yet saved), give
                 # the installation the opportunity to modify the user record or
