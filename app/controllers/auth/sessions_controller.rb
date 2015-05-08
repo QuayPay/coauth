@@ -21,7 +21,10 @@ module Auth
         # Local login
         def signin
             details = params.permit(:email, :password, :continue)
-            user_id = User.bucket.get("useremail-#{details[:email]}", {quiet: true})
+            authority = current_authority
+            
+            user_id = User.bucket.get(User.process_email(authority, details[:email]), {quiet: true})
+
             if user_id
                 user = User.find(user_id)
                 if user && user.authenticate(details[:password])

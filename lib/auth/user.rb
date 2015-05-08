@@ -15,10 +15,12 @@ class User < Couchbase::Model
     attribute :name, :email, :phone, :country, :image, :metadata
     attribute :password_digest, :email_digest
     attribute :created_at,  default: lambda { Time.now.to_i }
+    belongs_to :authority
 
-    # dirty attributes for email
-    define_attribute_methods :email
 
+    ensure_unique [:authority_id, :email], :email do |(authority_id, email)|
+        "usermail-#{authority_id}-#{email.to_s.strip.downcase}"
+    end
 
 
     # PASSWORD ENCRYPTION::
@@ -57,70 +59,11 @@ class User < Couchbase::Model
     # END PASSWORD METHODS
 
 
-    def email=(new_email)
-        email_will_change!
-        # in case email isn't supplied on auth
-        new_email = '' if new_email.nil?
-        new_email.strip!     # ! methods return nil if not altered
-        new_email.downcase!
-        write_attribute(:email, new_email)
-
-        # For looking up user pictures without making the email public
-        self.email_digest = Digest::MD5.hexdigest(new_email)
-    end
-
-    def self.find_by_email(email)
-        id = User.bucket.get("useremail-#{email.downcase}", {quiet: true})
-        User.find_by_id(id) if id
-    end
-
-
-    # before_create :set_email
-
     protected
 
 
     # Validations
-    validates :email,   :presence => true
     validates :email,   :email => true
     validates :password, length: { minimum: 6, message: 'must be at least 6 characters' }, allow_blank: true
-
-    validate  :email_unique
-    def email_unique
-        result = User.bucket.get("useremail-#{self.email}", {quiet: true})
-
-        if result != nil && result != self.id
-            errors.add(:email, 'already exists')
-        end
-    end
-
-    after_create :set_email
-    def set_email
-        User.bucket.set("useremail-#{self.email}", self.id)
-    end
-
-    before_save :update_email
-    def update_email
-        # Existing user accounts should always have an email
-        if self.email_changed?
-            old_email = self.email_was
-        elsif not self.exists?
-            old_email = false
-        else
-            return
-        end
-
-        # If old_email is false, email wasn't changed (it was just created) so don't overwrite
-        if old_email && old_email != self.email
-            bucket = User.bucket
-            bucket.delete("useremail-#{old_email}", {quiet: true}) if old_email
-            bucket.set("useremail-#{self.email}", self.id)
-        end
-    end
-
-    before_delete :delete_email_key
-    def delete_email_key
-        User.bucket.delete("useremail-#{self.email}")
-    end
 end
 

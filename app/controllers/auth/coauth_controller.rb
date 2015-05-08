@@ -3,6 +3,7 @@ require 'securerandom'
 module Auth
     class CoauthController < ActionController::Base
         include Auth::UserHelper
+        include CurrentAuthorityHelper
 
 
         Rails.application.config.force_ssl = Rails.env.production? && (ENV['COAUTH_NO_SSL'].nil? || ENV['COAUTH_NO_SSL'] == 'false')
