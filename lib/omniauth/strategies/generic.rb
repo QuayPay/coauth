@@ -23,7 +23,7 @@ module OmniAuth
             option :name, 'generic'
 
 		    uid { 
-		    	raw_info[options.client_options.info_mappings['uid']]
+		    	raw_info[options.client_options.info_mappings['uid']].to_s
 		    }
 
 		    info do
@@ -80,6 +80,9 @@ module OmniAuth
 		    end
 
 		    def raw_info
+		    	if !@raw_info.nil?
+		    		p @raw_info
+		    	end
 		        @raw_info ||= access_token.get(options.client_options.raw_info_url).parsed
 		    end
 
