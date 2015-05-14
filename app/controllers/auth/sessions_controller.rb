@@ -23,7 +23,7 @@ module Auth
             details = params.permit(:email, :password, :continue)
             authority = current_authority
             
-            user_id = User.bucket.get(User.process_email(authority, details[:email]), {quiet: true})
+            user_id = User.bucket.get("useremail-#{User.process_email(authority, details[:email])}", {quiet: true})
 
             if user_id
                 user = User.find(user_id)

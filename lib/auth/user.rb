@@ -21,7 +21,7 @@ class User < Couchbase::Model
 
 
     ensure_unique [:authority_id, :email], :email do |(authority_id, email)|
-        "usermail-#{authority_id}-#{email.to_s.strip.downcase}"
+        "#{authority_id}-#{email.to_s.strip.downcase}"
     end
 
 
