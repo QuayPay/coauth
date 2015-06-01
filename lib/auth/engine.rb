@@ -9,6 +9,8 @@ module Auth
             temp = model_conf.design_documents_paths
             model_conf.design_documents_paths = [File.expand_path(File.dirname(__FILE__))]
             Auth::Authentication.ensure_design_document!
+            User.ensure_design_document!
+            Strat.ensure_design_document!
             model_conf.design_documents_paths = temp
         end
     end

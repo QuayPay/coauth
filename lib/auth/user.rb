@@ -25,6 +25,16 @@ class User < Couchbase::Model
     end
 
 
+    #----------------
+    # indexes
+    #----------------
+    index_view :authority_id
+
+    def self.all
+        by_authority_id(stale: false)
+    end
+
+
     # PASSWORD ENCRYPTION::
     # ---------------------
     attr_reader   :password
