@@ -71,6 +71,16 @@ class User < Couchbase::Model
     # END PASSWORD METHODS
 
 
+
+    alias_method :assign_email, :email=
+    def email=(new_email)
+        assign_email(new_email)
+
+        # For looking up user pictures without making the email public
+        self.email_digest = Digest::MD5.hexdigest(new_email) if new_email
+    end
+
+
     protected
 
 
