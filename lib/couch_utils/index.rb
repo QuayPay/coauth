@@ -64,7 +64,15 @@ module Index
         define_singleton_method(find_by_method) do |*values|
             key = self.send(class_bucket_key_method, *values)
             id  = self.bucket.get(key, {quiet: true})
-            self.find_by_id(id)
+            if id
+                mod = self.find_by_id(id)
+                return mod if mod
+
+                # Clean up record if the id doesn't exist
+                self.bucket.delete(key, {quiet: true})
+            end
+
+            nil
         end
 
 
