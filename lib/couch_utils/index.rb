@@ -38,8 +38,8 @@ module Index
 
         # instance method that uses the class method to generate a bucket key
         # given the current value of each of the key's component attributes
-        define_method(bucket_key_method) do
-            self.class.send(class_bucket_key_method, *self.send(bucket_key_vals_method))
+        define_method(bucket_key_method) do |args = nil|
+            self.class.send(class_bucket_key_method, *(args || self.send(bucket_key_vals_method)))
         end
 
         # collect a list of values for each key component attribute
@@ -82,6 +82,7 @@ module Index
         # ensure each component of the unique key is present
         attrs.each do |attr|
             validates attr, presence: true
+            define_attribute_methods attr
         end
 
         define_method("#{name}_unique?") do
@@ -99,7 +100,8 @@ module Index
         # components have been modified
         before_save do |record|
             if attrs.any? {|attr| attr.in?(record.changes)}
-                instance_variable_set(original_bucket_key_var, record.send(bucket_key_method))
+                args = attrs.collect {|attr| send(:"#{attr}_was") || send(attr)}
+                instance_variable_set(original_bucket_key_var, record.send(bucket_key_method, args))
             end
         end
 
