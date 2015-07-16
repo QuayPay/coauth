@@ -9,7 +9,7 @@ if Rails.env.development?
         uri = URI.parse(request.url)
         uri.path = ''
         uri.query = nil
-        uri.port = 3000
+        uri.port = 4000
         uri.to_s
       end
     end
