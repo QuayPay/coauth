@@ -14,7 +14,7 @@ require 'auth/authentication'
 require 'auth/authority'
 require 'auth/user'
 
-# require 'open_id/store/couch_store'
+require 'open_id/store/couch_store'
 
-require 'auth/strat'
+require 'auth/strategy'
 require 'omniauth/strategies/generic'

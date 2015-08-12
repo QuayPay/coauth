@@ -21,7 +21,7 @@ module Auth
         # Local login
         def signin
             details = params.permit(:email, :password, :continue)
-            authority = Authority.find_by_id('sgrp_1-10')
+            authority = current_authority
             
             user_id = User.bucket.get("useremail-#{User.process_email(authority.id, details[:email])}", {quiet: true})
 
@@ -83,15 +83,12 @@ module Auth
             elsif auth_model.nil?
                 user = ::User.new(safe_params(auth.info))
 
-                authority = Authority.find_by_id('sgrp_1-10')
+                authority = current_authority
                 user.authority_id = authority.id
 
                 # now the user record is initialised (but not yet saved), give
                 # the installation the opportunity to modify the user record or
                 # reject the signup outright
-                p user
-                p auth[PROVIDER]
-                p auth
                 result = Auth::Authentication.before_signup_block.call(user, auth[PROVIDER], auth)
                 
                 if result != false && user.save

@@ -58,12 +58,6 @@ module Auth
                         return
                     end
                     user = User.new(safe_params)
-
-                    unless Authority.nil?
-                        authority = Authority.find_by_domain(request.host)
-                        user.authority_id = 'sgrp_1-10'
-                    end
-                    
                     if user.save
                         remove_session
                         new_session(user)
