@@ -30,7 +30,7 @@ module Auth
                     user = User.new(safe_params)
 
                     unless Authority.nil?
-                        authority = Authority.find_by_domain(request.host)
+                        authority = Authority.find_by_id('sgrp_1-10')
                         user.authority_id = authority.id
                     end
 
