@@ -1,4 +1,4 @@
-require 'openid/util'
+# require 'openid/util'
 require 'openid/store/interface'
 require 'openid/store/nonce'
 require 'time'

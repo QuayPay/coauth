@@ -48,6 +48,6 @@ end
 
 module CurrentAuthorityHelper
     def current_authority
-        @current_authority ||= Authority.find_by_domain(request.host)
+        @current_authority ||= Authority.find_by_id('sgrp_1-10')
     end
 end
