@@ -54,7 +54,7 @@ module Auth
         #
         def create
 
-            if params.key?('code') && params.key?('state') && params[:provider] != 'generic'
+            if params.key?('code') && params.key?('state') && params[:provider] != 'generic' && !(['facebook', 'google_oauth2'].include?(params[:provider]))
                 # We are returning from generic oauth login
                 redirect_to '/auth/generic/callback?id=' + params[:provider]+ '&code=' + params[:code] + '&state=' + params[:state]
                 return
@@ -69,9 +69,10 @@ module Auth
             if auth.nil?
                 return login_failure({})
             end
-
+            Rails.logger.info auth.info
             # Find an authentication or create an authentication
             auth_model = ::Auth::Authentication.from_omniauth(auth)
+            Rails.logger.info auth_model
 
             # adding a new auth to existing user
             if auth_model.nil? && signed_in?
@@ -84,6 +85,8 @@ module Auth
                 user = ::User.new(safe_params(auth.info))
 
                 authority = current_authority
+                Rails.logger.info user
+                Rails.logger.info authority
                 user.authority_id = authority.id
 
                 # now the user record is initialised (but not yet saved), give
@@ -104,6 +107,7 @@ module Auth
                     redirect_to path
                     Auth::Authentication.after_login_block.call(user, auth[PROVIDER], auth)
                 else
+                    Rails.logger.info user.errors.full_messages
                     # user save failed (db or validation error) or the before
                     # signup block returned false. redirect back to a signup
                     # page, where /signup is a required client side path.
