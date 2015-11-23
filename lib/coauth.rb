@@ -16,5 +16,8 @@ require 'auth/user'
 
 require 'open_id/store/couch_store'
 
-require 'auth/strategy'
-require 'omniauth/strategies/generic'
+require 'auth/oauth_strat'
+require 'omniauth/strategies/generic_oauth'
+
+require 'auth/ldap_strat'
+require 'omniauth/strategies/generic_ldap'

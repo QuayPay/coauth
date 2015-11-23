@@ -24,6 +24,7 @@ Gem::Specification.new do |s|
   s.add_dependency "addressable"
   s.add_dependency "jwt"
   s.add_dependency "omniauth-oauth2"
+  s.add_dependency "omniauth-ldap"
 
   s.add_development_dependency "rails", "~> 4.0.0"
   s.add_development_dependency "rspec"

@@ -53,13 +53,6 @@ module Auth
         # Run each time a user logs in via social
         #
         def create
-
-            if params.key?('code') && params.key?('state') && params[:provider] != 'generic'
-                # We are returning from generic oauth login
-                redirect_to '/auth/generic/callback?id=' + params[:provider]+ '&code=' + params[:code] + '&state=' + params[:state]
-                return
-            end
-
             # Where do we want to redirect to with our new session
             path = cookies.encrypted[:continue] || success_path
 
