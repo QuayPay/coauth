@@ -7,7 +7,7 @@ class LdapStrat < Couchbase::Model
     attribute :name  # (used as title)
 
     attribute :port, default: 636
-    attribute :method, default: :simple
+    attribute :auth_method, default: :simple
     attribute :uid, default: lambda { 'sAMAccountName' }
     attribute :host
     attribute :base

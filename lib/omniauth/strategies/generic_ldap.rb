@@ -1,4 +1,5 @@
 require 'omniauth/strategies/ldap'
+require 'omniauth-ldap'
 
 module OmniAuth
     module Strategies
@@ -38,7 +39,7 @@ module OmniAuth
 
                 options.title = strat.name
                 options.port = strat.port
-                options.method = strat.method
+                options.method = strat.auth_method.to_sym if strat.auth_method
                 options.encryption.to_sym if options.encryption
                 options.uid = strat.uid
                 options.host = strat.host
