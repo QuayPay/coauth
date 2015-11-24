@@ -39,7 +39,7 @@ module OmniAuth
                 options.title = strat.name
                 options.port = strat.port
                 options.method = strat.method
-                options.encryption if options.encryption
+                options.encryption.to_sym if options.encryption
                 options.uid = strat.uid
                 options.host = strat.host
                 options.base = strat.base
