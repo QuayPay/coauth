@@ -35,7 +35,7 @@ module OmniAuth
             end
 
             def set_options(id)
-                strat = LdapStrat.find(request.params['id'])
+                strat = LdapStrat.find(id)
 
                 options.title = strat.name
                 options.port = strat.port
