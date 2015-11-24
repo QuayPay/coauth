@@ -74,7 +74,14 @@ module Auth
 
             # new auth and new user
             elsif auth_model.nil?
-                user = ::User.new(safe_params(auth.info))
+                args = safe_params(auth.info)
+                user = ::User.new(args)
+
+                # Use last name and first name by preference
+                fn = args[:first_name]
+                if fn && !fn.empty?
+                    user.name = "#{fn} #{args[:last_name]}"
+                end
 
                 authority = current_authority
                 user.authority_id = authority.id
@@ -131,7 +138,7 @@ module Auth
 
 
         def safe_params(authinfo)
-            ::ActionController::Parameters.new(authinfo).permit(:name, :email, :password, :password_confirmation, :metadata)
+            ::ActionController::Parameters.new(authinfo).permit(:name, :first_name, :last_name, :email, :password, :password_confirmation, :metadata)
         end
 
         def auth_params_string(authinfo)

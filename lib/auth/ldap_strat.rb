@@ -7,11 +7,10 @@ class LdapStrat < Couchbase::Model
     attribute :name  # (used as title)
 
     attribute :port, default: 636
-    attribute :auth_method, default: :simple
+    attribute :auth_method, default: :ssl
     attribute :uid, default: lambda { 'sAMAccountName' }
     attribute :host
     attribute :base
     attribute :bind_dn
     attribute :password   # This should not be plain text
-    attribute :encryption
 end
