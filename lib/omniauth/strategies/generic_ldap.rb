@@ -4,6 +4,8 @@ require 'omniauth-ldap'
 module OmniAuth
     module Strategies
         class GenericLdap < OmniAuth::Strategies::LDAP
+            include CurrentAuthorityHelper
+
 
             option :name, 'generic_ldap'
 
@@ -37,6 +39,9 @@ module OmniAuth
             def set_options(id)
                 strat = LdapStrat.find(id)
 
+                authority = current_authority.try(:id)
+                raise 'invalid authentication source' unless authority == strat.authority_id
+
                 options.title = strat.name
                 options.port = strat.port
                 options.method = strat.auth_method
@@ -45,6 +50,7 @@ module OmniAuth
                 options.base = strat.base
                 options.bind_dn = strat.bind_dn
                 options.password = strat.password
+                options.filter = strat.filter if strat.filter
             end
         end
     end

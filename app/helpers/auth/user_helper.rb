@@ -8,9 +8,10 @@ module Auth
             @current_user = nil
         end
 
+        Id = 'id'.freeze
         def current_user
             user = cookies.encrypted[:user]
-            @current_user ||= User.find(user[:id]) if user
+            @current_user ||= User.find((user[:id] || user[Id])) if user
         end
 
         def signed_in?
