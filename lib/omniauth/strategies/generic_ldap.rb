@@ -45,7 +45,7 @@ module OmniAuth
                 options.title = strat.name
                 options.port = strat.port
                 options.method = strat.auth_method
-                options.uid = strat.uid
+                options.uid = strat.uid unless strat.filter
                 options.host = strat.host
                 options.base = strat.base
                 options.bind_dn = strat.bind_dn
