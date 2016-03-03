@@ -28,7 +28,7 @@ module Auth
             if user_id
                 user = User.find(user_id)
                 if user && user.authenticate(details[:password])
-                    path = details[:continue]
+                    path = details[:continue] || cookies.encrypted[:continue]
                     remove_session
                     new_session(user)
 
