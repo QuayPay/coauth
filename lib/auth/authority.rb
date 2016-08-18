@@ -14,6 +14,7 @@ class Authority < Couchbase::Model
     attribute :login_url,  default: '/login?continue={{url}}'
     attribute :logout_url, default: '/'
     attribute :internals,  default: lambda { {} }
+    attribute :config,     default: lambda { {} }
 
     validates :name,   presence: true
 
