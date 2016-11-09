@@ -12,6 +12,7 @@ Gem::Specification.new do |s|
     s.homepage    = 'http://bitbucket.org/quaypay/coauth'
     s.email       = 'cam@quaypay.com'
 
+    s.add_dependency "doorkeeper-couchbase"
     s.add_dependency "email_validator"
     s.add_dependency "addressable"
     s.add_dependency "scrypt"
@@ -21,8 +22,6 @@ Gem::Specification.new do |s|
     s.add_dependency "omniauth-ldap"
 
     s.add_development_dependency "rails", "~> 5.0"
-    s.add_development_dependency "konacha"
-    s.add_development_dependency "rspec"
 
     gem.files         = `git ls-files`.split("\n")
     gem.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")
