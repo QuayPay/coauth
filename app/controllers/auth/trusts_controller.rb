@@ -49,12 +49,12 @@ module Auth
                 else
                     # fail the request
                     response.status = 400
-                    render nothing: true, status: :bad_request
+                    head :bad_request
                 end
             else
                 # fail the request
                 response.status = 400
-                render nothing: true, status: :bad_request
+                head :bad_request
             end
         end
 

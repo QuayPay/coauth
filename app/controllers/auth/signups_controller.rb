@@ -11,7 +11,7 @@ module Auth
         def create
             # Can't create a user if you are already logged in.
             if cookies.encrypted[:user]
-                render nothing: true, status: :forbidden
+                head :forbidden
 
             # No user logged in check if they are signing in using a social auth
             else
@@ -47,7 +47,7 @@ module Auth
                         redirect_to path
                     else
                         # Email address taken (all other validation can be checked on the client)
-                        render(nothing: true, status: :conflict)
+                        head :conflict
                     end
                 else
                     # This is manual sign up form

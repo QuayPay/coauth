@@ -36,7 +36,7 @@ module Auth
                     if path
                         redirect_to path
                     else
-                        render nothing: true, status: :accepted
+                        head :accepted
                     end
 
                     Auth::Authentication.after_login_block.call(user)
@@ -151,7 +151,7 @@ module Auth
                 # TODO:: need to add query component to indicate that the request was a failure
                 redirect_to request.referer || '/' # login failed, reload the page
             else
-                render nothing: true, status: :unauthorized
+                head :unauthorized
             end
         end
     end
