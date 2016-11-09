@@ -2,7 +2,7 @@ require 'securerandom'
 
 module Auth
     class CoauthController < ActionController::Base
-        include Auth::UserHelper
+        include UserHelper
         include CurrentAuthorityHelper
 
 

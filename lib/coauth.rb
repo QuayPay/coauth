@@ -1,23 +1,14 @@
-require 'auth/engine'
-
-require 'couchbase'
+require 'coauth/engine'
+require 'libcouchbase'
 require 'doorkeeper'
 
-# Couchbase helpers we use across applications
-require 'couch_utils/ensure_unique'
-require 'couch_utils/enum'
-require 'couch_utils/has_many'
-require 'couch_utils/index'
-require 'couch_utils/join'
+require File.expand_path("../../app/models/authentication", __FILE__)
+require File.expand_path("../../app/models/authority", __FILE__)
+require File.expand_path("../../app/models/user", __FILE__)
 
-require 'auth/authentication'
-require 'auth/authority'
-require 'auth/user'
 
-# require 'open_id/store/couch_store'
-
-require 'auth/oauth_strat'
+require File.expand_path("../../app/models/oauth_strat", __FILE__)
 require 'omniauth/strategies/generic_oauth'
 
-require 'auth/ldap_strat'
+require File.expand_path("../../app/models/ldap_strat", __FILE__)
 require 'omniauth/strategies/generic_ldap'

@@ -1,6 +1,6 @@
 module Auth
     class AuthoritiesController < ActionController::Base
-        include Auth::UserHelper
+        include UserHelper
         include CurrentAuthorityHelper
         
         def current

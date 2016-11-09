@@ -1,20 +1,17 @@
 require 'addressable/uri'
 
-class Authority < Couchbase::Model
-    include CouchbaseId::Generator
-    extend EnsureUnique
-
+class Authority < CouchbaseOrm::Base
     design_document :sgrp
 
-    attribute :created_at, default: lambda { Time.now.to_i }
+    attribute :created_at,  type: Integer, default: lambda { Time.now }
 
-    attribute :name
-    attribute :dom
-    attribute :description
-    attribute :login_url,  default: '/login?continue={{url}}'
-    attribute :logout_url, default: '/'
-    attribute :internals,  default: lambda { {} }
-    attribute :config,     default: lambda { {} }
+    attribute :name,        type: String
+    attribute :dom,         type: String
+    attribute :description, type: String
+    attribute :login_url,   type: String, default: '/login?continue={{url}}'
+    attribute :logout_url,  type: String, default: '/'
+    attribute :internals,   type: Hash,   default: lambda { {} }
+    attribute :config,      type: Hash,   default: lambda { {} }
 
     validates :name,   presence: true
 
@@ -29,15 +26,15 @@ class Authority < Couchbase::Model
         parsed = Addressable::URI.heuristic_parse(domain)
         parsed.nil? || parsed.host.nil? ? nil : parsed.host.downcase
     end
-
     alias_method :domain, :dom
-
-    def domain=(dom)
-        self[:dom] = self.class.process_dom(dom)
-    end
 
     class << self
         alias_method :find_by_domain, :find_by_dom
+    end
+
+
+    def domain=(dom)
+        self[:dom] = self.class.process_dom(dom)
     end
 
     def as_json(options = {})
@@ -45,11 +42,5 @@ class Authority < Couchbase::Model
             json[:login_url] = self.login_url
             json[:logout_url] = self.logout_url
         end
-    end
-end
-
-module CurrentAuthorityHelper
-    def current_authority
-        @current_authority ||= Authority.find_by_domain(request.host)
     end
 end

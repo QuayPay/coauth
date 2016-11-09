@@ -19,7 +19,6 @@ end
 module OmniAuth
     module Strategies
         class GenericOauth < OmniAuth::Strategies::OAuth2
-
             option :name, 'generic_oauth'
 
             uid {

@@ -2,23 +2,18 @@ require 'email_validator'
 require 'digest/md5'
 require 'scrypt'
 
-
-class User < Couchbase::Model
+class User < CouchbaseOrm::Base
     design_document :user
-    include ::CouchbaseId::Generator
-    include ActiveModel::Dirty
-
-    extend EnsureUnique
 
 
     PUBLIC_DATA = {only: [:id, :email_digest, :nickname, :name, :created_at]}
 
 
-    attribute :name, :email, :phone, :country, :image, :metadata
-    attribute :password_digest, :email_digest
-    attribute :created_at,  default: lambda { Time.now.to_i }
-    belongs_to :authority
+    attribute :name, :email, :phone, :country, :image, :metadata, type: String
+    attribute :password_digest, :email_digest, type: String
+    attribute :created_at, type: Integer, default: lambda { Time.now }
 
+    belongs_to :authority
 
     ensure_unique [:authority_id, :email], :email do |(authority_id, email)|
         "#{authority_id}-#{email.to_s.strip.downcase}"
@@ -29,18 +24,16 @@ class User < Couchbase::Model
     # indexes
     #----------------
     index_view :authority_id
-
     def self.all
-        by_authority_id(stale: false)
+        by_authority_id
     end
 
 
     # PASSWORD ENCRYPTION::
     # ---------------------
-    attr_reader   :password
-
+    attr_reader :password
     validates_confirmation_of :password
-    #validates_presence_of     :password_digest   # password optional
+
 
     if respond_to?(:attributes_protected_by_default)
         def self.attributes_protected_by_default
@@ -55,9 +48,9 @@ class User < Couchbase::Model
             false
         end
     rescue ::SCrypt::Errors::InvalidHash
-      # accounts created with social logins will have an empty password_digest
-      # which causes SCrypt to raise an InvalidHash exception
-      false
+        # accounts created with social logins will have an empty password_digest
+        # which causes SCrypt to raise an InvalidHash exception
+        false
     end
 
     # Encrypts the password into the password_digest attribute.
@@ -72,6 +65,7 @@ class User < Couchbase::Model
 
 
 
+    # Make reference to the email= function of the model
     alias_method :assign_email, :email=
     def email=(new_email)
         assign_email(new_email)
@@ -85,7 +79,7 @@ class User < Couchbase::Model
 
 
     # Validations
-    validates :email,   :email => true
+    validates :email, :email => true
     validates :password, length: { minimum: 6, message: 'must be at least 6 characters' }, allow_blank: true
 end
 

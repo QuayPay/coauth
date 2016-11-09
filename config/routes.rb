@@ -11,12 +11,11 @@ Rails.application.routes.draw do
         post '/signin', to: 'auth/sessions#signin'   # local account login
         post '/signup', to: 'auth/signups#create'    # manual account creation
 
-        get '/failure', to: 'auth/signups#show'      # Auth failure message
+        get  '/failure', to: 'auth/signups#show'      # Auth failure message
 
         # Refresh tokens for web apps
-        post   '/token', to: 'auth/trusts#create'
-        match  '/token' => 'auth/trusts#options', :via => :options
+        post '/token', to: 'auth/trusts#create'
 
-        get '/authority', to: 'auth/authorities#current'
+        get  '/authority', to: 'auth/authorities#current'
     end
 end

@@ -4,7 +4,7 @@ require 'omniauth-ldap'
 module OmniAuth
     module Strategies
         class GenericLdap < OmniAuth::Strategies::LDAP
-            include CurrentAuthorityHelper
+            include Coauth::CurrentAuthorityHelper
 
 
             option :name, 'generic_ldap'
