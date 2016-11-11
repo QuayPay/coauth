@@ -5,7 +5,7 @@ require "coauth/version"
 # Describe your gem and declare its dependencies:
 Gem::Specification.new do |s|
     s.name        = "coauth"
-    s.version     = Auth::VERSION
+    s.version     = Coauth::VERSION
     s.summary     = "Authorisation and Authentication"
     s.description = "Log in with multiple social media providers"
     s.authors     = ["Cameron Reeves", "Stephen von Takach"]
@@ -17,7 +17,6 @@ Gem::Specification.new do |s|
     s.add_dependency "addressable"
     s.add_dependency "scrypt"
 
-    s.add_dependency "omniauth-identity"
     s.add_dependency "omniauth-oauth2"
     s.add_dependency "omniauth-ldap"
 
