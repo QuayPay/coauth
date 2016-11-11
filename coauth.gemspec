@@ -22,6 +22,6 @@ Gem::Specification.new do |s|
 
     s.add_development_dependency "rails", "~> 5.0"
 
-    gem.files         = `git ls-files`.split("\n")
-    gem.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")
+    s.files         = `git ls-files`.split("\n")
+    s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")
 end
