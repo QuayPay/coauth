@@ -1,6 +1,6 @@
 
 class OauthStrat < CouchbaseOrm::Base
-    design_document :oauth
+    design_document :oauths
 
 
     attribute :created_at, type: Integer, default: lambda { Time.now }

@@ -1,6 +1,6 @@
 
 class LdapStrat < CouchbaseOrm::Base
-    design_document :ldap
+    design_document :ldaps
 
 
     attribute :created_at, type: Integer, default: lambda { Time.now }
