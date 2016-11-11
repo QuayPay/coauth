@@ -17,9 +17,6 @@ Gem::Specification.new do |s|
     s.add_dependency "addressable"
     s.add_dependency "scrypt"
 
-    s.add_dependency "omniauth-oauth2"
-    s.add_dependency "omniauth-ldap"
-
     s.add_development_dependency "rails", "~> 5.0"
 
     s.files         = `git ls-files`.split("\n")
