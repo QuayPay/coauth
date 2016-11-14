@@ -35,7 +35,7 @@ module Auth
                     end
 
                     if user.save
-                        auth = Auth::Authentication.new({provider: provider, uid: uid})
+                        auth = Authentication.new({provider: provider, uid: uid})
                         auth.user_id = user.id
                         auth.save
 

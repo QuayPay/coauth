@@ -64,13 +64,13 @@ module Auth
             end
 
             # Find an authentication or create an authentication
-            auth_model = ::Auth::Authentication.from_omniauth(auth)
+            auth_model = Authentication.from_omniauth(auth)
 
             # adding a new auth to existing user
             if auth_model.nil? && signed_in?
-                ::Auth::Authentication.create_with_omniauth(auth, current_user.id)
+                Authentication.create_with_omniauth(auth, current_user.id)
                 redirect_to path
-                Auth::Authentication.after_login_block.call(current_user)
+                Authentication.after_login_block.call(current_user)
 
             # new auth and new user
             elsif auth_model.nil?
@@ -89,11 +89,11 @@ module Auth
                 # now the user record is initialised (but not yet saved), give
                 # the installation the opportunity to modify the user record or
                 # reject the signup outright
-                result = Auth::Authentication.before_signup_block.call(user, auth[PROVIDER], auth)
+                result = Authentication.before_signup_block.call(user, auth[PROVIDER], auth)
                 
                 if result != false && user.save
                     # user is created, associate an auth record or raise exception
-                    Auth::Authentication.create_with_omniauth(auth, user.id)
+                    Authentication.create_with_omniauth(auth, user.id)
 
                     # make the new user the currently logged in user
                     remove_session
@@ -102,7 +102,7 @@ module Auth
                     # redirect the user to the page they were trying to access and
                     # run any custom post-login actions
                     redirect_to path
-                    Auth::Authentication.after_login_block.call(user, auth[PROVIDER], auth)
+                    Authentication.after_login_block.call(user, auth[PROVIDER], auth)
                 else
                     # user save failed (db or validation error) or the before
                     # signup block returned false. redirect back to a signup
@@ -119,7 +119,7 @@ module Auth
                     user = User.find_by_id(auth_model.user_id)
                     new_session(user)
                     redirect_to path
-                    Auth::Authentication.after_login_block.call(user)
+                    Authentication.after_login_block.call(user)
                 rescue => e
                     logger.error "Error with user account. Possibly due to a database failure:\nAuth model: #{auth_model.inspect}\n#{e.inspect}"
                     raise e
