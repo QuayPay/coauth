@@ -15,6 +15,7 @@ Gem::Specification.new do |s|
     s.add_dependency "doorkeeper-couchbase"
     s.add_dependency "email_validator"
     s.add_dependency "addressable"
+    s.add_dependency "omniauth"
     s.add_dependency "scrypt"
 
     s.add_development_dependency "rails", "~> 5.0"
