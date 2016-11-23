@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 
 module CurrentAuthorityHelper
     def current_authority

@@ -1,4 +1,4 @@
-
+# frozen_string_literal: true
 
 module UserHelper
     def remove_session
@@ -8,7 +8,7 @@ module UserHelper
         @current_user = nil
     end
 
-    Id = 'id'.freeze
+    Id = 'id'
     def current_user
         user = cookies.encrypted[:user]
         @current_user ||= User.find((user[:id] || user[Id])) if user

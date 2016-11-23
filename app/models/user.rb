@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'email_validator'
 require 'digest/md5'
 require 'scrypt'

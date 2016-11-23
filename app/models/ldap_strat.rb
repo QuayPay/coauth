@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 
 class LdapStrat < CouchbaseOrm::Base
     design_document :ldaps

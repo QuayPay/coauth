@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 
 class Authentication < CouchbaseOrm::Base
     design_document :oauth  # less redundant data with short names
@@ -16,7 +17,7 @@ class Authentication < CouchbaseOrm::Base
     end
 
     def self.from_omniauth(auth)
-        self.find_by_id('auth-' + auth['provider'] + '-' + auth['uid'])
+        self.find_by_id("auth-#{auth['provider']}-#{auth['uid']}")
     end
 
     def self.create_with_omniauth(auth, user_id)
@@ -54,6 +55,6 @@ class Authentication < CouchbaseOrm::Base
 
     before_create :generate_id
     def generate_id
-        self.id = 'auth-' + self.provider + '-' + self.uid
+        self.id = "auth-#{self.provider}-#{self.uid}"
     end
 end

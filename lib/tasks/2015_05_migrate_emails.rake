@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 namespace :migrate do
 
     desc 'Migrate emails to isolate by authority'

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'coauth/engine'
 require 'libcouchbase'
 require 'doorkeeper'

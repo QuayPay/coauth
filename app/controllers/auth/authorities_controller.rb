@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Auth
     class AuthoritiesController < ActionController::Base
         include UserHelper

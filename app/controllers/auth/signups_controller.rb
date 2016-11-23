@@ -1,9 +1,7 @@
+# frozen_string_literal: true
 
 module Auth
     class SignupsController < CoauthController
-        respond_to :json
-
-
         def show
             render text: "Authentication Failed: #{params.permit(:message)[:message]}"
         end
