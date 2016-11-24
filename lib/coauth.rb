@@ -21,3 +21,6 @@ require 'omniauth/strategies/generic_oauth'
 
 require 'auth/ldap_strat'
 require 'omniauth/strategies/generic_ldap'
+
+require 'auth/adfs_strat'
+require 'omniauth/strategies/generic_adfs'

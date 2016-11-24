@@ -1,9 +1,8 @@
-require 'omniauth/strategies/ldap'
-require 'omniauth-ldap'
+require 'omniauth/strategies/saml'
 
 module OmniAuth
     module Strategies
-        class GenericLdap < OmniAuth::Strategies::LDAP
+        class GenericAdfs < OmniAuth::Strategies::SAML
             include CurrentAuthorityHelper
 
 
