@@ -18,6 +18,7 @@ module OmniAuth
                     set_options(authid)
                 end
 
+                reset_session
                 session['omniauth.auth_id'] = authid
 
                 super
@@ -25,6 +26,7 @@ module OmniAuth
 
             def callback_phase
                 authid = session.delete 'omniauth.auth_id'
+                reset_session
 
                 # Set out details once again
                 if authid.nil?
