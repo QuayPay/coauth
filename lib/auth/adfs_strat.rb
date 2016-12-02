@@ -26,6 +26,8 @@ class AdfsStrat < Couchbase::Model
     attribute :attribute_service_name
     attribute :attribute_statements
 
+    attribute :info_params_map
+
 
     protected
 
