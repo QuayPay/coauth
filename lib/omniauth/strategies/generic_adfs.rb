@@ -20,13 +20,13 @@ module OmniAuth
                     set_options(authid)
                 end
 
-                session['omniauth.auth_id'] = authid
+                session.clear
 
                 super
             end
 
             def callback_phase
-                authid = session.delete 'omniauth.auth_id'
+                authid = request.params['id']
 
                 # Set out details once again
                 if authid.nil?

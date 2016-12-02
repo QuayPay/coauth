@@ -20,6 +20,7 @@ module OmniAuth
                     set_options(authid)
                 end
 
+                session.clear
                 session['omniauth.auth_id'] = authid
 
                 super

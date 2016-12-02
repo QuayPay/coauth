@@ -59,6 +59,7 @@ module OmniAuth
             end
 
             def authorize_params
+                session.clear
                 session['omniauth.auth_id'] = request.params['id']
                 super
             end
