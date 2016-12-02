@@ -18,13 +18,12 @@ module OmniAuth
                 end
 
                 session.clear
-                session['omniauth.auth_id'] = authid
 
                 super
             end
 
             def callback_phase
-                authid = session.delete 'omniauth.auth_id'
+                authid = request.params['id']
 
                 # Set out details once again
                 if authid.nil?
