@@ -57,6 +57,7 @@ module OmniAuth
                 options.request_attributes = strat.request_attributes if strat.request_attributes
                 options.attribute_service_name = strat.attribute_service_name if strat.attribute_service_name
                 options.attribute_statements = strat.attribute_statements if strat.attribute_statements
+                options.info_params_map = strat.info_params_map if strat.info_params_map
             end
         end
     end

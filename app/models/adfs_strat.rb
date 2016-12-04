@@ -29,6 +29,7 @@ module Coauth
         attribute :attribute_service_name, type: String
         attribute :attribute_statements
         attribute :request_attributes
+        attribute :info_params_map
 
 
         protected
