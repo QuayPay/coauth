@@ -3,6 +3,7 @@ require 'uri'
 require 'set'
 
 require 'securerandom'
+require 'concurrent'
 
 
 module Auth
