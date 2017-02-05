@@ -40,8 +40,7 @@ module Auth
 
                 if token
                     # Grab the refresh token from the cookie (we used passed in redirect uri this time)
-                    key   = ActiveSupport::KeyGenerator.new(safe[:redirect_uri]).generate_key(secret)
-                    crypt = ActiveSupport::MessageEncryptor.new(key)
+                    crypt = get_encryptor(safe[:redirect_uri], secret)
                     request.parameters['refresh_token'] = crypt.decrypt_and_verify(token)
 
                     # Make the now enhanced OAuth request
@@ -85,19 +84,30 @@ module Auth
             return unless response.status == 200
             remove_session # Only happens when request came from the same domain
 
-            # Grab the data we need
-            redirect = app.redirect_uri
-            secret = app.secret
-
             # Extract the refresh token from the response
             resp_data = ::ActiveSupport::JSON.decode response.body
 
-            # Encrypt it using the redirect_uri as the password and secret as the salt
-            key   = ActiveSupport::KeyGenerator.new(redirect).generate_key(secret)
-            crypt = ActiveSupport::MessageEncryptor.new(key)
+            # Grab the data we need
+            redirect = app.redirect_uri
+            secret = app.secret
+            crypt = get_encryptor(redirect, secret)
+            
             resp_data['refresh_token'] = crypt.encrypt_and_sign(resp_data['refresh_token'])
 
             response.body = ::ActiveSupport::JSON.encode resp_data
+        end
+
+        KNOWN_KEYS = ::Concurrent::Map.new
+        def get_encryptor(redirect, secret)
+            lookup = "#{redirect}#{secret}"
+            crypt = KNOWN_KEYS[lookup]
+            unless crypt
+                # Encrypt it using the redirect_uri as the password and secret as the salt
+                key   = ActiveSupport::KeyGenerator.new(redirect).generate_key(secret)
+                crypt = ActiveSupport::MessageEncryptor.new(key)
+                KNOWN_KEYS[lookup] = crypt
+            end
+            crypt
         end
 
         # Don't keep re-creating these objects for every request
