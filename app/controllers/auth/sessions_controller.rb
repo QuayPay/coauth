@@ -6,8 +6,11 @@ require 'set'
 
 
 module Auth
+    UID = 'uid'.freeze
+    PROVIDER = 'provider'.freeze
+    OMNIAUTH = 'omniauth.auth'.freeze
+
     class SessionsController < CoauthController
-        OMNIAUTH = 'omniauth.auth'.freeze
         SKIP_PARAMS = Set.new(['urls', 'Website']) # Params we don't want to send to register
 
 
