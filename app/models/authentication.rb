@@ -25,7 +25,7 @@ class Authentication < CouchbaseOrm::Base
         authen.provider = auth['provider']
         authen.uid = auth['uid']
         authen.user_id = user_id
-        authen.create!
+        authen.save!
     end
 
     # the before_signup block gives installations the ability to reject
