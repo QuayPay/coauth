@@ -6,9 +6,14 @@ module Auth
         include CurrentAuthorityHelper
         
         def current
-            auth = current_authority.as_json(except: [:created_at, :internals])
-            auth[:session] = signed_in?
-            render json: auth
+            authority = current_authority
+            if authority
+                auth = authority.as_json(except: [:created_at, :internals])
+                auth[:session] = signed_in?
+                render json: auth
+            else
+                head :not_found
+            end
         end
     end
 end
