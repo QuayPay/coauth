@@ -44,7 +44,7 @@ module Auth
                         head :accepted
                     end
 
-                    Auth::Authentication.after_login_block.call(user)
+                    Authentication.after_login_block.call(user)
                 else
                     login_failure(details)
                 end
