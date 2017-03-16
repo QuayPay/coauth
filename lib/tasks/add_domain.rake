@@ -16,7 +16,7 @@
 
 namespace :domain do
 
-    # Usage: rake "domain:add_authority['Name of Site','https://domain']"
+    # Usage: rake "domain:add_authority[Name of Site,https://domain]"
     desc 'Generates an authority for the current domain'
     task :add_authority, [:site_name, :site_origin, :support_pass] => [:environment] do |task, args|
         site_name = args[:site_name]
@@ -27,6 +27,8 @@ namespace :domain do
         auth = Authority.new
         auth.name = site_name
         auth.domain = site_origin
+
+        puts "Authority for #{site_name}: #{site_origin}"
 
         begin
             auth.save!
@@ -43,11 +45,11 @@ namespace :domain do
             puts "Authority created!\n#{site_name} = #{auth.id}\n#{user.email} : #{support_pass} = #{user.id}"
         rescue => e
             puts "Authority creation failed with:"
-            puts e.record.errors.full_messages
+            puts e.record.errors.messages
         end
     end
 
-    # Usage: rake "domain:add_app['Name of App','https://domain/path']"
+    # Usage: rake "domain:add_app[Name of App,https://domain/path]"
     desc 'Generates an application ID for an interface'
     task :add_app, [:app_name, :app_base, :scope] => [:environment] do |task, args|
         app_name = args[:app_name]
@@ -56,6 +58,8 @@ namespace :domain do
 
         redirect_uri = "#{app_base}/oauth-resp.html"
         app_id = Digest::MD5.hexdigest redirect_uri
+
+        puts "Building Application #{app_name}: #{redirect_uri}"
 
         app = Doorkeeper::Application.new
         app.name = app_name
@@ -70,7 +74,7 @@ namespace :domain do
             puts "App '#{app_name}' added with ID #{app.id}"
         rescue => e
             puts "App creation failed with:"
-            puts app.errors.full_messages
+            puts app.errors.messages
         end
     end
 
