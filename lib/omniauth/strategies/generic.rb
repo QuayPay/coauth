@@ -1,20 +1,7 @@
 require 'multi_json'
 require 'jwt'
 require 'omniauth/strategies/oauth2'
-
-if Rails.env.development?
-  module OmniAuth
-    module Strategy
-      def full_host
-        uri = URI.parse(request.url)
-        uri.path = ''
-        uri.query = nil
-        uri.port = 3000
-        uri.to_s
-      end
-    end
-  end
-end
+require 'open-uri'
 
 module OmniAuth
     module Strategies
@@ -23,6 +10,10 @@ module OmniAuth
             option :name, 'generic'
 
 		    uid { 
+		    	Rails.logger.info "Got heres"
+		    	Rails.logger.info raw_info
+		    	Rails.logger.info raw_info["ID"]
+		    	Rails.logger.info options.client_options.info_mappings['uid'].class
 		    	raw_info[options.client_options.info_mappings['uid']].to_s
 		    }
 
@@ -81,9 +72,20 @@ module OmniAuth
 
 		    def raw_info
 		    	if !@raw_info.nil?
-		    		p @raw_info
+		    		Rails.logger.info @raw_info
 		    	end
-		        @raw_info ||= access_token.get(options.client_options.raw_info_url).parsed
+		    	Rails.logger.info "Getting raw info with details:"
+		    	Rails.logger.info access_token.token
+		    	Rails.logger.info options.client_options.raw_info_url
+		    	# @raw_info ||= ::RestClient.get(options.client_options.raw_info_url + "?access_token=" + access_token.token)
+		        # @raw_info ||= access_token.get(options.client_options.raw_info_url).parsed
+
+
+				@raw_info ||= JSON.parse(open(options.client_options.raw_info_url + "?access_token=" + access_token.token).read)
+
+				Rails.logger.info "Raw info:"
+				Rails.logger.info @raw_info 
+				@raw_info
 		    end
 
 		    def prune!(hash)

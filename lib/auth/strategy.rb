@@ -22,9 +22,13 @@ class Strat < Couchbase::Model
     attribute :raw_info_url
 
 
-    view :by_name
+    view :by_name, :show_all
     def self.by_name(name)
         by_name({:key => [name], :stale => false})  
+    end
+
+    def self.all
+      show_all({:key => nil, :include_docs => true, :stale => false})
     end
 
     def self.lookup(id)
