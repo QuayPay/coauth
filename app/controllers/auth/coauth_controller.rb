@@ -32,7 +32,7 @@ module Auth
                 httponly: true,
                 path: '/auth'   # only sent to calls at this path
             }
-            value[:secure] = USE_SSL
+            value[:secure] = USE_SSL unless request.host.start_with?('dev.')
             cookies.encrypted[:user] = value
         end
 
@@ -46,7 +46,7 @@ module Auth
                 httponly: true,
                 path: '/auth'   # only sent to calls at this path
             }
-            value[:secure] = USE_SSL
+            value[:secure] = USE_SSL unless request.host.start_with?('dev.')
             cookies.encrypted[:social] = value
         end
 
@@ -56,7 +56,7 @@ module Auth
                 httponly: true,
                 path: '/auth'   # only sent to calls at this path
             }
-            value[:secure] = USE_SSL
+            value[:secure] = USE_SSL unless request.host.start_with?('dev.')
             cookies.encrypted[:continue] = value
         end
     end
