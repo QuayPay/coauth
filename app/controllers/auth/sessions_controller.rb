@@ -124,7 +124,7 @@ module Auth
                     user = User.find_by_id(auth_model.user_id)
                     new_session(user)
                     redirect_to path
-                    Authentication.after_login_block.call(user)
+                    Authentication.after_login_block.call(user, auth[PROVIDER], auth)
                 rescue => e
                     logger.error "Error with user account. Possibly due to a database failure:\nAuth model: #{auth_model.inspect}\n#{e.inspect}"
                     raise e
