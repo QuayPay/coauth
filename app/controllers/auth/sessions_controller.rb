@@ -75,7 +75,7 @@ module Auth
             if auth_model.nil? && signed_in?
                 Authentication.create_with_omniauth(auth, current_user.id)
                 redirect_to path
-                Authentication.after_login_block.call(current_user)
+                Authentication.after_login_block.call(current_user, auth[PROVIDER], auth)
 
             # new auth and new user
             elsif auth_model.nil?
