@@ -68,6 +68,7 @@ namespace :domain do
         app.id = app_id
         app.uid = app_id
         app.scopes = scope.present? ? scope : 'public'
+        app.skip_authorization = true
 
         begin
             app.save!
