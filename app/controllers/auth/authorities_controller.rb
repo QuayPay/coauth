@@ -10,6 +10,7 @@ module Auth
             if authority
                 auth = authority.as_json(except: [:created_at, :internals])
                 auth[:session] = signed_in?
+                auth[:production] = Rails.env.production?
                 render json: auth
             else
                 head :not_found
