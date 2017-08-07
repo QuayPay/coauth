@@ -45,7 +45,11 @@ namespace :domain do
             puts "Authority created!\n#{site_name} = #{auth.id}\n#{user.email} : #{support_pass} = #{user.id}"
         rescue => e
             puts "Authority creation failed with:"
-            puts e.record.errors.messages
+            if e.respond_to?(:record)
+                puts e.record.errors.messages
+            else
+                puts "#{e.message}\n#{e.backtrace.join("\n")}"
+            end
         end
     end
 
@@ -74,8 +78,12 @@ namespace :domain do
             app.save!
             puts "App '#{app_name}' added with ID #{app.id}"
         rescue => e
-            puts "App creation failed with:"
-            puts app.errors.messages
+            begin
+                puts "App creation failed with:"
+                puts app.errors.messages
+            rescue
+                puts "#{e.message}\n#{e.backtrace.join("\n")}"
+            end
         end
     end
 
