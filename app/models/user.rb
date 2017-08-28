@@ -21,6 +21,9 @@ class User < CouchbaseOrm::Base
         "#{authority_id}-#{email.to_s.strip.downcase}"
     end
 
+    attribute :sys_admin, default: false
+    attribute :support,   default: false
+
 
     #----------------
     # indexes
@@ -28,6 +31,11 @@ class User < CouchbaseOrm::Base
     index_view :authority_id
     def self.all
         by_authority_id
+    end
+
+    view :is_sys_admin
+    def self.find_sys_admins
+        is_sys_admin(key: true, stale: false)
     end
 
 
