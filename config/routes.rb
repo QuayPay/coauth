@@ -24,6 +24,7 @@ Rails.application.routes.draw do
         namespace :api do
             resources :applications
             resources :domains
+            resources :authsources
         end
     end
 end

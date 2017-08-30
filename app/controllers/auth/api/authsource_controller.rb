@@ -2,7 +2,7 @@
 
 module Auth
     module Api
-        class AuthsourceController < Base
+        class AuthsourcesController < Base
             before_action :check_admin
             before_action :find_authsource, only: [:show, :update, :destroy]
 
@@ -12,7 +12,14 @@ module Auth
 
             def index
                 query = @@elastic.query(params)
+                # Multiple document types
                 query.or_filter(SEARCH_FILTER)
+
+                # Specific domain
+                authority_id = params.permit(:authority_id)[:authority_id]
+                query.filter({'doc.authority_id' => [authority_id]}) if authority_id
+
+                # Any user level filters
                 query.sort = NAME_SORT_ASC
                 query.search_field 'doc.name'
 

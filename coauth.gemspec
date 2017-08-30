@@ -13,6 +13,7 @@ Gem::Specification.new do |s|
     s.email       = 'cam@quaypay.com'
 
     s.add_dependency "doorkeeper-couchbase"
+    s.add_dependency "co-elastic-query", "~> 3.1" # Query builder
     s.add_dependency "email_validator"
     s.add_dependency "addressable"
     s.add_dependency "omniauth"
