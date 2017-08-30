@@ -35,7 +35,8 @@ module Coauth
         protected
 
 
-        validates :authority_id,    presence: true
+        validates :authority_id, presence: true
+        validates :name,         presence: true
 
         validates :issuer,                              presence: true
         validates :idp_sso_target_url,                  presence: true

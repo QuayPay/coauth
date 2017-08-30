@@ -19,4 +19,11 @@ Rails.application.routes.draw do
 
         get  '/authority', to: 'auth/authorities#current'
     end
+
+    namespace :auth do
+        namespace :api do
+            resources :applications
+            resources :domains
+        end
+    end
 end

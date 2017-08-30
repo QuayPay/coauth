@@ -5,8 +5,10 @@ class OauthStrat < CouchbaseOrm::Base
 
 
     attribute :created_at, type: Integer, default: lambda { Time.now }
+    attribute :name,       type: String
 
-    attribute :name,           type: String
+    belongs_to :authority
+
     attribute :client_id,      type: String
     attribute :client_secret,  type: String
     attribute :info_mappings,  type: Hash
@@ -23,4 +25,11 @@ class OauthStrat < CouchbaseOrm::Base
 
     # Provides find_by_name function
     index_view :name
+
+
+    protected
+
+
+    validates :authority_id, presence: true
+    validates :name,         presence: true
 end
