@@ -22,5 +22,6 @@ class LdapStrat < CouchbaseOrm::Base
     protected
 
 
-    validates :authority_id,      presence: true
+    validates :authority_id, presence: true
+    validates :name,         presence: true
 end

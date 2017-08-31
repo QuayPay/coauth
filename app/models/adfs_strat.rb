@@ -21,15 +21,15 @@ module Coauth
         attribute :assertion_consumer_service_url, type: String
         attribute :idp_sso_target_url, type: String
         
-        # TODO:: indicate all types
         attribute :idp_cert, type: String
         attribute :idp_cert_fingerprint, type: String
-        attribute :idp_cert_fingerprint_validator
 
         attribute :attribute_service_name, type: String
-        attribute :attribute_statements
-        attribute :request_attributes
-        attribute :info_params_map
+        attribute :attribute_statements, type: Hash
+        attribute :request_attributes, type: Hash
+        attribute :info_params_map, type: Hash
+        attribute :idp_slo_target_url, type: String
+        attribute :slo_default_relay_state, type: String
 
 
         protected
