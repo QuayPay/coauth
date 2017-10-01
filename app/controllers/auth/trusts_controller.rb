@@ -101,7 +101,7 @@ module Auth
             crypt = KNOWN_KEYS[lookup]
             unless crypt
                 # Encrypt it using the redirect_uri as the password and secret as the salt
-                key   = ActiveSupport::KeyGenerator.new(redirect).generate_key(secret,32)
+                key   = ActiveSupport::KeyGenerator.new(redirect).generate_key(secret, 32)
                 crypt = ActiveSupport::MessageEncryptor.new(key)
                 KNOWN_KEYS[lookup] = crypt
             end
