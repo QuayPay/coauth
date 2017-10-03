@@ -66,6 +66,11 @@ module Auth
             def current_user
                 @current_user ||= User.find(doorkeeper_token.resource_owner_id) if doorkeeper_token
             end
+
+            # Grab the reactor details for the current request
+            def reactor
+                @reactor ||= ::Libuv::Reactor.current
+            end
         end
     end
 end
