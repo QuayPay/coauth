@@ -32,12 +32,12 @@ module Auth
 
             def update
                 @app.assign_attributes(safe_params)
-                save_and_respond @app
+                save_with_owner_id(@app)
             end
 
             def create
                 app = ::Doorkeeper::Application.new(safe_params)
-                save_and_respond app
+                save_with_owner_id(app)
             end
 
             def destroy
@@ -59,6 +59,14 @@ module Auth
             def find_app
                 # Find will raise a 404 (not found) if there is an error
                 @app = ::Doorkeeper::Application.find(id)
+            end
+
+            def save_with_owner_id(app)
+                if app.owner_id
+                    save_and_respond app
+                else
+                    render json: { owner: ["can't be blank"] }, status: :not_acceptable
+                end
             end
         end
     end
