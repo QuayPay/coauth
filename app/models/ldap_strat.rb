@@ -19,6 +19,22 @@ class LdapStrat < CouchbaseOrm::Base
     attribute :filter
 
 
+    def type
+        self.class.design_document
+    end
+
+    def type=(type)
+        raise 'bad type' unless type.to_s == self.class.design_document
+    end
+
+    def serializable_hash(**options)
+        options = {
+            methods: :type
+        }.merge!(options)
+        super(**options)
+    end
+
+
     protected
 
 

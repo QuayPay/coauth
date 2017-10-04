@@ -15,9 +15,9 @@ module Auth
 
                 owner_id = params.permit(:owner)[:owner]
                 if owner_id
-                #    query.filter({
-                #        'doc.owner_id' => [owner_id]
-                #    })
+                    query.filter({
+                        'doc.owner_id' => [owner_id]
+                    })
                 end
 
                 query.sort = NAME_SORT_ASC
@@ -31,12 +31,24 @@ module Auth
             end
 
             def update
+                # We don't want redirect_uri to be updatable as ID is generated from this
+                config = safe_params
+                config.delete(:redirect_uri)
+
+                # Some older installs have UID as null
+                @app.uid = @app.id
+
                 @app.assign_attributes(safe_params)
                 save_with_owner_id(@app)
             end
 
             def create
                 app = ::Doorkeeper::Application.new(safe_params)
+
+                # Generate the IDs
+                app.id = Digest::MD5.hexdigest app.redirect_uri
+                app.uid = app.id
+
                 save_with_owner_id(app)
             end
 
@@ -50,7 +62,7 @@ module Auth
 
 
             APP_PARAMS = [
-                :name, :scopes, :redirect_uri, :skip_authorization
+                :name, :scopes, :redirect_uri, :skip_authorization, :secret, :owner_id
             ]
             def safe_params
                 params.permit(APP_PARAMS).to_h

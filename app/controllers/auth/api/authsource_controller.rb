@@ -8,7 +8,8 @@ module Auth
 
 
             @@elastic ||= Elastic.new
-            SEARCH_FILTER = {'doc.type' => ['adfs', 'ldaps', 'oauths']}
+            DOC_TYPES = ['adfs', 'ldaps', 'oauths']
+            SEARCH_FILTER = {'doc.type' => DOC_TYPES}
 
             def index
                 query = @@elastic.query(params)
@@ -36,14 +37,14 @@ module Auth
             end
 
             def create
-                type = params.permit(:type)[:type]
-                auth = case type.to_sym
+                args = safe_params
+                auth = case args[:type].to_sym
                 when :adfs
-                    ::Authority.new(safe_params)
-                when :ldap
-                    ::Authority.new(safe_params)
-                when :oauth
-                    ::Authority.new(safe_params)
+                    ::AdfsStrat.new(args)
+                when :ldaps
+                    ::LdapStrat.new(args)
+                when :oauths
+                    ::OauthStrat.new(args)
                 end
                 save_and_respond auth
             end
@@ -57,22 +58,45 @@ module Auth
             protected
 
 
-            AUTHORITY_PARAMS = [
-                :name, :dom, :description, :login_url, :logout_url
+            AUTH_PARAMS = [
+                :type, :name, :authority_id,
+                # SAML
+                :issuer, :name_identifier_format, :assertion_consumer_service_url, :idp_sso_target_url,
+                :idp_cert, :idp_cert_fingerprint, :attribute_service_name, :idp_slo_target_url,
+                :slo_default_relay_state,
+                # LDAP
+                :port, :auth_method, :uid, :host, :base, :bind_dn, :password, :filter,
+                # OAuth
+                :client_id, :client_secret, :site, :authorize_url, :token_method, :auth_scheme, 
+                :token_url, :scope, :raw_info_url
             ]
             def safe_params
-                internals = params[:internals]
-                config = params[:config]
+                args = params.permit(AUTH_PARAMS).to_h
 
-                args = params.permit(AUTHORITY_PARAMS).to_h
-                args[:internals] = internals.to_unsafe_hash if internals
-                args[:config] = config.to_unsafe_hash if config
+                case args[:type].to_sym
+                when :ldaps, :oauths
+                    get_hash(args, :info_mappings)
+                when :adfs
+                    get_hash(args, :idp_sso_target_url_runtime_params)
+                    get_hash(args, :attribute_statements)
+                    get_hash(args, :request_attributes)
+                else
+                    raise 'bad request'
+                end
+
                 args
             end
 
             def find_authsource
-                # Find will raise a 404 (not found)
+                # Find will raise a 404 (not found) then we need to check the document type
                 @authsource = ::CouchbaseOrm.try_load(id)
+                head(:not_acceptable) unless DOC_TYPES.include?(@authsource.class.design_document)
+            end
+
+            def get_hash(args, key)
+                hash = params[key]
+                args[key] = hash.to_unsafe_hash if hash
+                args.delete(key) unless args[key].present?
             end
         end
     end

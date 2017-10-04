@@ -38,7 +38,7 @@ module OmniAuth
             end
 
             def set_options(id)
-                strat = AdfsStrat.find(id)
+                strat = ::AdfsStrat.find(id)
 
                 authority = current_authority.try(:id)
                 raise 'invalid authentication source' unless authority == strat.authority_id
@@ -55,9 +55,9 @@ module OmniAuth
 
                 options.idp_cert = strat.idp_cert if strat.idp_cert
                 options.idp_cert_fingerprint = strat.idp_cert_fingerprint if strat.idp_cert_fingerprint
-                options.request_attributes = strat.request_attributes if strat.request_attributes
+                options.request_attributes = strat.request_attributes if strat.request_attributes.present?
                 options.attribute_service_name = strat.attribute_service_name if strat.attribute_service_name
-                options.attribute_statements = strat.attribute_statements if strat.attribute_statements
+                options.attribute_statements = strat.attribute_statements if strat.attribute_statements.present?
             end
         end
     end
