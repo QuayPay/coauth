@@ -40,4 +40,6 @@ class LdapStrat < CouchbaseOrm::Base
 
     validates :authority_id, presence: true
     validates :name,         presence: true
+    validates :host,         presence: true
+    validates :base,         presence: true
 end
