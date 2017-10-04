@@ -1,12 +1,11 @@
 # frozen_string_literal: true
 
-require 'omniauth/strategies/ldap'
-require 'omniauth-ldap'
+require 'omniauth/strategies/saml'
 
 module OmniAuth
     module Strategies
-        class GenericLdap < OmniAuth::Strategies::LDAP
-            include Coauth::CurrentAuthorityHelper
+        class GenericAdfs < OmniAuth::Strategies::SAML
+            include ::CurrentAuthorityHelper
 
 
             option :name, 'generic_adfs'
@@ -39,7 +38,7 @@ module OmniAuth
             end
 
             def set_options(id)
-                strat = AdfsStrat.find(id)
+                strat = ::AdfsStrat.find(id)
 
                 authority = current_authority.try(:id)
                 raise 'invalid authentication source' unless authority == strat.authority_id
@@ -51,13 +50,14 @@ module OmniAuth
                 options.assertion_consumer_service_url = strat.assertion_consumer_service_url
                 options.idp_sso_target_url = strat.idp_sso_target_url
 
+                options.idp_slo_target_url = strat.idp_slo_target_url if strat.idp_slo_target_url
+                options.slo_default_relay_state = strat.slo_default_relay_state if strat.slo_default_relay_state
+
                 options.idp_cert = strat.idp_cert if strat.idp_cert
                 options.idp_cert_fingerprint = strat.idp_cert_fingerprint if strat.idp_cert_fingerprint
-                options.idp_cert_fingerprint_validator = strat.idp_cert_fingerprint_validator if strat.idp_cert_fingerprint_validator
-                options.request_attributes = strat.request_attributes if strat.request_attributes
+                options.request_attributes = strat.request_attributes if strat.request_attributes.present?
                 options.attribute_service_name = strat.attribute_service_name if strat.attribute_service_name
-                options.attribute_statements = strat.attribute_statements if strat.attribute_statements
-                options.info_params_map = strat.info_params_map if strat.info_params_map
+                options.attribute_statements = strat.attribute_statements if strat.attribute_statements.present?
             end
         end
     end

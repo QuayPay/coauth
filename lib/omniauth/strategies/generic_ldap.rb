@@ -1,12 +1,12 @@
 # frozen_string_literal: true
 
-require 'omniauth/strategies/ldap'
 require 'omniauth-ldap'
+require 'omniauth/strategies/ldap'
 
 module OmniAuth
     module Strategies
         class GenericLdap < OmniAuth::Strategies::LDAP
-            include Coauth::CurrentAuthorityHelper
+            include ::CurrentAuthorityHelper
 
 
             option :name, 'generic_ldap'

@@ -4,13 +4,17 @@ require 'coauth/engine'
 require 'libcouchbase'
 require 'doorkeeper'
 
-require File.expand_path("../../app/models/authentication", __FILE__)
-require File.expand_path("../../app/models/authority", __FILE__)
-require File.expand_path("../../app/models/user", __FILE__)
+require_relative '../app/models/authentication'
+require_relative '../app/models/authority'
+require_relative '../app/models/user'
 
+require_relative '../app/helpers/current_authority_helper.rb'
 
-require File.expand_path("../../app/models/oauth_strat", __FILE__)
-#require 'omniauth/strategies/generic_oauth'
+require_relative '../app/models/oauth_strat'
+require 'omniauth/strategies/generic_oauth'
 
-require File.expand_path("../../app/models/ldap_strat", __FILE__)
-#require 'omniauth/strategies/generic_ldap'
+require_relative '../app/models/ldap_strat'
+require 'omniauth/strategies/generic_ldap'
+
+require_relative '../app/models/adfs_strat'
+require 'omniauth/strategies/generic_adfs'
