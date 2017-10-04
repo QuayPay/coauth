@@ -14,11 +14,9 @@ class OauthStrat < CouchbaseOrm::Base
     attribute :info_mappings,  type: Hash
     attribute :site,           type: String
     attribute :authorize_url,  type: String
-    attribute :authorize_path, type: String
-    attribute :use_authorize,  type: Boolean
+    attribute :token_method,   type: String
+    attribute :auth_scheme,    type: String
     attribute :token_url,      type: String
-    attribute :credential_url, type: String
-    attribute :uid,            type: String
     attribute :scope,          type: String
     attribute :raw_info_url,   type: String
 
