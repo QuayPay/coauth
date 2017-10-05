@@ -68,6 +68,8 @@ module Auth
 
             # adding a new auth to existing user
             if auth_model.nil? && signed_in?
+                logger.info "User signed in and re-authenticating"
+
                 ::Auth::Authentication.create_with_omniauth(auth, current_user.id)
                 redirect_to path
                 Auth::Authentication.after_login_block.call(current_user)
@@ -90,6 +92,8 @@ module Auth
                 # the installation the opportunity to modify the user record or
                 # reject the signup outright
                 result = Auth::Authentication.before_signup_block.call(user, auth[PROVIDER], auth)
+
+                logger.info "Creating new user: #{result.inspect}\n#{user.inspect}"
                 
                 if result != false && user.save
                     # user is created, associate an auth record or raise exception
@@ -104,6 +108,8 @@ module Auth
                     redirect_to path
                     Auth::Authentication.after_login_block.call(user, auth[PROVIDER], auth)
                 else
+                    logger.info "User save failed: #{user.errors.messages}"
+
                     # user save failed (db or validation error) or the before
                     # signup block returned false. redirect back to a signup
                     # page, where /signup is a required client side path.
