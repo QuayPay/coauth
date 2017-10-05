@@ -99,7 +99,9 @@ module Auth
                 # the installation the opportunity to modify the user record or
                 # reject the signup outright
                 result = Authentication.before_signup_block.call(user, auth[PROVIDER], auth)
-                
+
+                logger.info "Creating new user: #{result.inspect}\n#{user.inspect}"
+
                 if result != false && user.save
                     # user is created, associate an auth record or raise exception
                     Authentication.create_with_omniauth(auth, user.id)
@@ -113,6 +115,8 @@ module Auth
                     redirect_to path
                     Authentication.after_login_block.call(user, auth[PROVIDER], auth)
                 else
+                    logger.info "User save failed: #{user.errors.messages}"
+
                     # user save failed (db or validation error) or the before
                     # signup block returned false. redirect back to a signup
                     # page, where /signup is a required client side path.
