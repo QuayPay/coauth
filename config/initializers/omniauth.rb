@@ -4,7 +4,7 @@ require 'faraday/adapter/libuv'
 Faraday.default_adapter = :libuv
 
 Rails.application.config.session_store :cookie_store, key: '_coauth_session'
-::OmniAuthConfig = proc {
+::CoauthAuthConfig = proc {
     provider :developer unless Rails.env.production?
     provider :generic_adfs,  name: 'adfs'
     provider :generic_ldap,  name: 'ldap'

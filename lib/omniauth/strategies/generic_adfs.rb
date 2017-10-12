@@ -32,8 +32,12 @@ module OmniAuth
             end
 
             def other_phase
-                aca_configure_opts
-                super
+                if current_path.start_with?(request_path)
+                    aca_configure_opts
+                    super
+                else
+                    call_app!
+                end
             end
 
             def set_options(id)

@@ -1,3 +1,4 @@
+# frozen_string_literal: true, encoding: ASCII-8BIT
 
 # Based of code from
 # * http://stackoverflow.com/questions/26922343/omniauthnosessionerror-you-must-provide-a-session-to-use-omniauth-configur
@@ -26,7 +27,10 @@ class SelectiveStack
             # needed for OmniAuth
             middleware.use ::ActionDispatch::Cookies
             middleware.use ::Rails.application.config.session_store, ::Rails.application.config.session_options
-            middleware.use ::OmniAuth::Builder, &OmniAuthConfig if defined?(::OmniAuth)
+            if defined?(::OmniAuth)
+                middleware.use ::OmniAuth::Builder, &OmniAuthConfig if defined?(::OmniAuthConfig)
+                middleware.use ::OmniAuth::Builder, &CoauthAuthConfig
+            end
             # needed for Doorkeeper /oauth views
             middleware.use ::ActionDispatch::Flash
         end
