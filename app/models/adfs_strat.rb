@@ -9,7 +9,7 @@ class AdfsStrat < CouchbaseOrm::Base
     
     belongs_to :authority
 
-    attribute :issuer, type: String, default: :cotag
+    attribute :issuer, type: String, default: :aca
     attribute :idp_sso_target_url_runtime_params, type: Hash, default: lambda { {
         email: :"http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress",
         name: :"http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name",
