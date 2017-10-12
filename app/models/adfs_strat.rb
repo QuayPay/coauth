@@ -11,9 +11,9 @@ class AdfsStrat < CouchbaseOrm::Base
 
     attribute :issuer, type: String, default: :aca
     attribute :idp_sso_target_url_runtime_params, type: Hash, default: lambda { {
-        email: "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress",
-        name: "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name",
-        metadata: "http://tafesa.edu.au/identity/claims/DistinguishedName"
+        email: "emailaddress",
+        name: "name",
+        metadata: "NameID"
     } }
     attribute :name_identifier_format, type: String, default: lambda { 'urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified' }
 
