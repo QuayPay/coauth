@@ -11,29 +11,28 @@ module OmniAuth
             option :name, 'generic_adfs'
 
 
-            def request_phase
+            def aca_configure_opts
                 authid = request.params['id']
                 if authid.nil?
                     raise 'no auth definition ID provided'
                 else
                     set_options(authid)
                 end
+            end
 
+            def request_phase
+                aca_configure_opts
                 session.clear
-
                 super
             end
 
             def callback_phase
-                authid = request.params['id']
+                aca_configure_opts
+                super
+            end
 
-                # Set out details once again
-                if authid.nil?
-                    raise 'no auth definition ID provided'
-                else
-                    set_options(authid)
-                end
-
+            def other_phase
+                aca_configure_opts
                 super
             end
 
