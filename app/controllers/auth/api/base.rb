@@ -16,6 +16,7 @@ module Auth
             before_action :doorkeeper_authorize!
             rescue_from ::CouchbaseOrm::Error::RecordInvalid, with: :invalid_record
             rescue_from ::Libcouchbase::Error::KeyNotFound,   with: :entry_not_found
+            rescue_from ::Libcouchbase::Error::NetworkError,  with: :service_unavailable
 
 
             protected
