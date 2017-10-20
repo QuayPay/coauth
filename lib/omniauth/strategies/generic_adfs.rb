@@ -44,24 +44,23 @@ module OmniAuth
             def set_options(id)
                 strat = ::AdfsStrat.find(id)
 
+                # Ensure this isn't some cross domain hacking attempt
                 authority = current_authority.try(:id)
                 raise 'invalid authentication source' unless authority == strat.authority_id
 
+                # Map the database model to the strategy settings
                 options.title = strat.name
-                options.issuer = strat.issuer
-                options.idp_sso_target_url_runtime_params = strat.idp_sso_target_url_runtime_params
-                options.name_identifier_format = strat.name_identifier_format
-                options.assertion_consumer_service_url = strat.assertion_consumer_service_url
-                options.idp_sso_target_url = strat.idp_sso_target_url
 
-                options.idp_slo_target_url = strat.idp_slo_target_url if strat.idp_slo_target_url
-                options.slo_default_relay_state = strat.slo_default_relay_state if strat.slo_default_relay_state
-
-                options.idp_cert = strat.idp_cert if strat.idp_cert.present?
-                options.idp_cert_fingerprint = strat.idp_cert_fingerprint if strat.idp_cert_fingerprint.present?
-                options.request_attributes = strat.request_attributes if strat.request_attributes.present?
-                options.attribute_service_name = strat.attribute_service_name if strat.attribute_service_name.present?
-                options.attribute_statements = strat.attribute_statements if strat.attribute_statements.present?
+                [
+                    :issuer, :name_identifier_format, :assertion_consumer_service_url,
+                    :idp_sso_target_url, :idp_slo_target_url, :slo_default_relay_state,
+                    :idp_sso_target_url_runtime_params, :idp_cert, :idp_cert_fingerprint,
+                    :request_attributes, :attribute_service_name, :attribute_statements,
+                    :uid_attribute
+                ].each do |param|
+                    value = strat.__send__(param)
+                    options.__send__(:"#{param}=", value) if value.present?
+                end
 
                 options.idp_cert_fingerprint_validator = DEFAULT_CERT_VALIDATOR
             end
