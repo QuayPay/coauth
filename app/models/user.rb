@@ -12,6 +12,7 @@ class User < CouchbaseOrm::Base
 
 
     attribute :name, :email, :phone, :country, :image, :metadata, type: String
+    attribute :first_name, :last_name, type: String
     attribute :password_digest, :email_digest, type: String
     attribute :created_at, type: Integer, default: lambda { Time.now }
 
@@ -23,6 +24,12 @@ class User < CouchbaseOrm::Base
 
     attribute :sys_admin, default: false
     attribute :support,   default: false
+
+
+    before_save :build_name, if: Proc.new { |model| model.first_name.present? }
+    def build_name
+        self.name = "#{self.first_name} #{self.last_name}"
+    end
 
 
     #----------------
