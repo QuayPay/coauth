@@ -29,7 +29,7 @@ class AdfsStrat < CouchbaseOrm::Base
             last_name: ["last_name", "lastname", "lastName", "surname"]
         }
     }
-    attribute :request_attributes, type: Hash, default: lambda {
+    attribute :request_attributes, type: Array, default: lambda {
         [
             { :name => 'ImmutableID', :name_format => 'urn:oasis:names:tc:SAML:2.0:attrname-format:basic', :friendly_name => 'Login Name' },
             { :name => 'email', :name_format => 'urn:oasis:names:tc:SAML:2.0:attrname-format:basic', :friendly_name => 'Email address' },
