@@ -63,7 +63,7 @@ module Auth
                 # SAML
                 :issuer, :name_identifier_format, :assertion_consumer_service_url, :idp_sso_target_url,
                 :idp_cert, :idp_cert_fingerprint, :attribute_service_name, :idp_slo_target_url,
-                :slo_default_relay_state,
+                :slo_default_relay_state, :uid_attribute,
                 # LDAP
                 :port, :auth_method, :uid, :host, :base, :bind_dn, :password, :filter,
                 # OAuth
@@ -79,7 +79,11 @@ module Auth
                 when :adfs
                     get_hash(args, :idp_sso_target_url_runtime_params)
                     get_hash(args, :attribute_statements)
-                    get_hash(args, :request_attributes)
+
+                    # Extracts an array of hashes
+                    args[:request_attributes] = params.extract!(:request_attributes)
+                        .permit![:request_attributes]&.collect { |att| att.to_unsafe_hash }
+                    args.delete(:request_attributes) unless args[:request_attributes].present?
                 else
                     raise 'bad request'
                 end
