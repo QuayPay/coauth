@@ -40,6 +40,7 @@ module OmniAuth
                 end
             end
 
+            DEFAULT_CERT_VALIDATOR = lambda { |fingerprint| fingerprint }
             def set_options(id)
                 strat = ::AdfsStrat.find(id)
 
@@ -56,11 +57,13 @@ module OmniAuth
                 options.idp_slo_target_url = strat.idp_slo_target_url if strat.idp_slo_target_url
                 options.slo_default_relay_state = strat.slo_default_relay_state if strat.slo_default_relay_state
 
-                options.idp_cert = strat.idp_cert if strat.idp_cert
-                options.idp_cert_fingerprint = strat.idp_cert_fingerprint if strat.idp_cert_fingerprint
+                options.idp_cert = strat.idp_cert if strat.idp_cert.present?
+                options.idp_cert_fingerprint = strat.idp_cert_fingerprint if strat.idp_cert_fingerprint.present?
                 options.request_attributes = strat.request_attributes if strat.request_attributes.present?
-                options.attribute_service_name = strat.attribute_service_name if strat.attribute_service_name
+                options.attribute_service_name = strat.attribute_service_name if strat.attribute_service_name.present?
                 options.attribute_statements = strat.attribute_statements if strat.attribute_statements.present?
+
+                options.idp_cert_fingerprint_validator = DEFAULT_CERT_VALIDATOR
             end
         end
     end
