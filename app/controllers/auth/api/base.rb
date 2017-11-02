@@ -2,10 +2,7 @@
 
 module Auth
     module Api
-        class Base < ActionController::Base
-            layout nil
-
-
+        class Base < ActionController::API
             NAME_SORT_ASC ||= [{
                 'doc.name.sort' => {
                     order: :asc
