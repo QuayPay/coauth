@@ -6,13 +6,8 @@ require 'set'
 
 
 module Auth
-    UID = 'uid'.freeze
-    PROVIDER = 'provider'.freeze
-    OMNIAUTH = 'omniauth.auth'.freeze
-
     class SessionsController < CoauthController
         SKIP_PARAMS = Set.new(['urls', 'Website']) # Params we don't want to send to register
-
 
         # Inline login
         def new
@@ -26,12 +21,11 @@ module Auth
             redirect_to uri, :status => :see_other
         end
 
-
         # Local login
         def signin
             details = params.permit(:email, :password, :continue)
             authority = current_authority
-            
+
             user_id = User.bucket.get("useremail-#{User.process_email(authority.id, details[:email])}", {quiet: true})
 
             if user_id
@@ -57,16 +51,13 @@ module Auth
             end
         end
 
-
-        #
         # Run each time a user logs in via social
-        #
         def create
             # Where do we want to redirect to with our new session
             path = cookies.encrypted[:continue] || success_path
 
             # Get auth hash from omniauth
-            auth = request.env[OMNIAUTH]
+            auth = request.env['omniauth.auth']
 
             if auth.nil?
                 return login_failure({})
@@ -79,7 +70,7 @@ module Auth
             if auth_model.nil? && signed_in?
                 Authentication.create_with_omniauth(auth, current_user.id)
                 redirect_to path
-                Authentication.after_login_block.call(current_user, auth[PROVIDER], auth)
+                Authentication.after_login_block.call(current_user, auth['provider'], auth)
 
             # new auth and new user
             elsif auth_model.nil?
@@ -98,7 +89,7 @@ module Auth
                 # now the user record is initialised (but not yet saved), give
                 # the installation the opportunity to modify the user record or
                 # reject the signup outright
-                result = Authentication.before_signup_block.call(user, auth[PROVIDER], auth)
+                result = Authentication.before_signup_block.call(user, auth['provider'], auth)
 
                 logger.info "Creating new user: #{result.inspect}\n#{user.inspect}"
 
@@ -113,15 +104,21 @@ module Auth
                     # redirect the user to the page they were trying to access and
                     # run any custom post-login actions
                     redirect_to path
-                    Authentication.after_login_block.call(user, auth[PROVIDER], auth)
+                    Authentication.after_login_block.call(user, auth['provider'], auth)
                 else
-                    logger.info "User save failed: #{user.errors.messages}"
+                    info = "User creation failed with #{auth.inspect}"
+                    errors = "User model errors: #{user.errors.messages}"
+                    logger.warn info
+                    logger.info errors
 
                     # user save failed (db or validation error) or the before
                     # signup block returned false. redirect back to a signup
                     # page, where /signup is a required client side path.
-                    store_social(auth[UID], auth[PROVIDER])
-                    redirect_to '/signup/index.html?' + auth_params_string(auth.info)
+                    store_social(auth['uid'], auth['provider'])
+
+                    response.headers['x-aca-user-info'] = auth.inspect
+                    response.headers['x-aca-user-errors'] = errors.inspect
+                    redirect_to "#{authority.internals[:signup_path] || '/signup/index.html'}?#{auth_params_string(auth.info)}"
                 end
 
             # existing auth and existing user
@@ -132,7 +129,7 @@ module Auth
                     user = User.find_by_id(auth_model.user_id)
                     new_session(user)
                     redirect_to path
-                    Authentication.after_login_block.call(user, auth[PROVIDER], auth)
+                    Authentication.after_login_block.call(user, auth['provider'], auth)
                 rescue => e
                     logger.error "Error with user account. Possibly due to a database failure:\nAuth model: #{auth_model.inspect}\n#{e.inspect}"
                     raise e
