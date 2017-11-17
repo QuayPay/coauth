@@ -12,16 +12,21 @@ class User < CouchbaseOrm::Base
 
 
     attribute :name, :email, :phone, :country, :image, :metadata, type: String
-    attribute :user_login, :first_name, :last_name, type: String
+    attribute :login_name, :staff_id, :first_name, :last_name, type: String
     attribute :password_digest, :email_digest, type: String
     attribute :created_at, type: Integer, default: lambda { Time.now }
     attribute :deleted, type: Boolean, default: false
 
     belongs_to :authority
 
-    ensure_unique [:authority_id, :email], :email do |(authority_id, email)|
+    # find_by_email(authority, email)
+    ensure_unique [:authority_id, :email], :email do |authority_id, email|
         "#{authority_id}-#{email.to_s.strip.downcase}"
     end
+
+    # find_by_login_name(login)
+    ensure_unique :login_name, presence: false
+    ensure_unique :staff_id,   presence: false
 
     attribute :sys_admin, default: false
     attribute :support,   default: false
