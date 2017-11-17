@@ -86,6 +86,13 @@ module Auth
                 authority = current_authority
                 user.authority_id = authority.id
 
+                # This fixes issues where users change their UID
+                if authority.internals[:trusted_authsource]
+                    existing = ::User.find_by_email(authority.id, user.email)
+                    user = existing if existing
+                    user.deleted = false
+                end
+
                 # now the user record is initialised (but not yet saved), give
                 # the installation the opportunity to modify the user record or
                 # reject the signup outright
