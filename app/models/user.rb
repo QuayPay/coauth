@@ -12,9 +12,10 @@ class User < CouchbaseOrm::Base
 
 
     attribute :name, :email, :phone, :country, :image, :metadata, type: String
-    attribute :first_name, :last_name, type: String
+    attribute :user_login, :first_name, :last_name, type: String
     attribute :password_digest, :email_digest, type: String
     attribute :created_at, type: Integer, default: lambda { Time.now }
+    attribute :deleted, type: Boolean, default: false
 
     belongs_to :authority
 
