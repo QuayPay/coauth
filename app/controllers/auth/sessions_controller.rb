@@ -86,6 +86,11 @@ module Auth
                 end
 
                 authority = current_authority
+
+                existing = ::User.find_by_email(authority.id, user.email)
+                user = existing if existing
+                user.deleted = false
+
                 user.authority_id = authority.id
 
                 # now the user record is initialised (but not yet saved), give
