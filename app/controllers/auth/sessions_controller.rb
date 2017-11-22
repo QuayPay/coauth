@@ -89,7 +89,7 @@ module Auth
 
                 existing = ::User.find_by_email(authority.id, user.email)
                 user = existing if existing
-                user.deleted = false
+                user.deleted = false if user.respond_to?(:deleted)
 
                 user.authority_id = authority.id
 
