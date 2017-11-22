@@ -65,16 +65,20 @@ module Auth
 
             # Find an authentication or create an authentication
             auth_model = Authentication.from_omniauth(auth)
+            args = safe_params(auth.info)
 
             # adding a new auth to existing user
             if auth_model.nil? && signed_in?
-                Authentication.create_with_omniauth(auth, current_user.id)
+                user = current_user
+                user.assign_attributes(args)
+                user.save
+
+                Authentication.create_with_omniauth(auth, user.id)
                 redirect_to path
-                Authentication.after_login_block.call(current_user, auth['provider'], auth)
+                Authentication.after_login_block.call(user, auth['provider'], auth)
 
             # new auth and new user
             elsif auth_model.nil?
-                args = safe_params(auth.info)
                 user = ::User.new(args)
 
                 # Use last name and first name by preference
@@ -89,8 +93,11 @@ module Auth
                 # This fixes issues where users change their UID
                 if authority.internals[:trusted_authsource]
                     existing = ::User.find_by_email(authority.id, user.email)
-                    user = existing if existing
-                    user.deleted = false
+                    if existing
+                        user = existing
+                        user.deleted = false
+                        user.assign_attributes(args)
+                    end
                 end
 
                 # now the user record is initialised (but not yet saved), give
@@ -134,6 +141,8 @@ module Auth
                     # Log-in the user currently authenticating
                     remove_session if signed_in?
                     user = User.find_by_id(auth_model.user_id)
+                    user.assign_attributes(args)
+                    user.save
                     new_session(user)
                     redirect_to path
                     Authentication.after_login_block.call(user, auth['provider'], auth)
@@ -155,7 +164,10 @@ module Auth
 
 
         def safe_params(authinfo)
-            ::ActionController::Parameters.new(authinfo).permit(:name, :first_name, :last_name, :email, :password, :password_confirmation, :metadata)
+            ::ActionController::Parameters.new(authinfo).permit(
+                :name, :first_name, :last_name, :email, :password, :password_confirmation, :metadata, 
+                :login_name, :staff_id, :phone, :country
+            )
         end
 
         def auth_params_string(authinfo)
