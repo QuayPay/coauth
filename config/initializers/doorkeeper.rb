@@ -13,7 +13,9 @@ Doorkeeper.configure do
             user = User.find_by_id(cookie[:id]) if cookie
             user || redirect_to('/login_required.html')
         rescue TypeError
-            remove_session
+            cookies.delete(:user,   path: '/auth')
+            cookies.delete(:social, path: '/auth')
+            cookies.delete(:continue, path: '/auth')
             redirect_to('/login_required.html')
         end
     end
