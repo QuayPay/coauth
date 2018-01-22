@@ -8,9 +8,14 @@ Doorkeeper.configure do
     resource_owner_authenticator do |routes|
         # We use cookies signed instead of session as then we can limit
         # the cookie to particular paths (i.e. /auth)
-        cookie = cookies.encrypted[:user]
-        user = User.find_by_id(cookie[:id]) if cookie
-        user || redirect_to('/login_required.html')
+        begin
+            cookie = cookies.encrypted[:user]
+            user = User.find_by_id(cookie[:id]) if cookie
+            user || redirect_to('/login_required.html')
+        rescue TypeError
+            remove_session
+            redirect_to('/login_required.html')
+        end
     end
 
     # restrict the access to the web interface for adding
