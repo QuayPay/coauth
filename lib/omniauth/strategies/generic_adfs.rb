@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'omniauth/strategies/saml'
+require 'omniauth-saml'
 
 module OmniAuth
     module Strategies
