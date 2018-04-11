@@ -79,7 +79,7 @@ namespace :domain do
             puts "App '#{app_name}' added with ID #{app.id}"
         rescue => e
             begin
-                puts "App creation failed with:"
+                puts "App creation failed with: #{e.message}"
                 puts app.errors.messages
             rescue
                 puts "#{e.message}\n#{e.backtrace.join("\n")}"
