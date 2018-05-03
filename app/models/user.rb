@@ -8,11 +8,14 @@ class User < CouchbaseOrm::Base
     design_document :user
 
 
-    PUBLIC_DATA = {only: [:id, :email_digest, :nickname, :name, :created_at]}
+    PUBLIC_DATA = {only: [
+        :id, :email_digest, :nickname, :name, :first_name, :last_name,
+        :country, :building, :created_at
+    ]}
 
 
     attribute :name, :email, :phone, :country, :image, :metadata, type: String
-    attribute :login_name, :staff_id, :first_name, :last_name, type: String
+    attribute :login_name, :staff_id, :first_name, :last_name, :building, type: String
     attribute :password_digest, :email_digest, type: String
     attribute :created_at, type: Integer, default: lambda { Time.now }
     attribute :deleted, type: Boolean, default: false
