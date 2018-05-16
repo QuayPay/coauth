@@ -16,7 +16,7 @@ class User < CouchbaseOrm::Base
 
     attribute :name, :email, :phone, :country, :image, :metadata, type: String
     attribute :login_name, :staff_id, :first_name, :last_name, :building, type: String
-    attribute :password_digest, :email_digest, type: String
+    attribute :password_digest, :email_digest, :card_number, type: String
     attribute :created_at, type: Integer, default: lambda { Time.now }
     attribute :deleted, type: Boolean, default: false
 
