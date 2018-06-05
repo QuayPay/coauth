@@ -9,32 +9,36 @@ module OmniAuth
             option :name, 'generic_adfs'
 
 
-            def request_phase
+            def aca_configure_opts
                 authid = request.params['id']
                 if authid.nil?
                     raise 'no auth definition ID provided'
                 else
                     set_options(authid)
                 end
+            end
 
+            def request_phase
+                aca_configure_opts
                 session.clear
-
                 super
             end
 
             def callback_phase
-                authid = request.params['id']
-
-                # Set out details once again
-                if authid.nil?
-                    raise 'no auth definition ID provided'
-                else
-                    set_options(authid)
-                end
-
+                aca_configure_opts
                 super
             end
 
+            def other_phase
+                if current_path.start_with?(request_path)
+                    aca_configure_opts
+                    super
+                else
+                    call_app!
+                end
+            end
+
+            DEFAULT_CERT_VALIDATOR = lambda { |fingerprint| fingerprint }
             def set_options(id)
                 strat = AdfsStrat.find(id)
 
@@ -55,6 +59,9 @@ module OmniAuth
                 options.attribute_service_name = strat.attribute_service_name if strat.attribute_service_name
                 options.attribute_statements = strat.attribute_statements if strat.attribute_statements
                 options.info_params_map = strat.info_params_map if strat.info_params_map
+
+                options.allowed_clock_drift = 5.seconds
+                options.idp_cert_fingerprint_validator = DEFAULT_CERT_VALIDATOR
             end
         end
     end
