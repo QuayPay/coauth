@@ -11,10 +11,14 @@ module Auth
 
         # Inline login
         def new
-            details = params.permit(:provider, :continue)
+            details = params.permit(:provider, :continue, :id)
             remove_session
             set_continue(details[:continue])
-            redirect_to "/auth/#{details[:provider]}", :status => :see_other
+            uri = "/auth/#{details[:provider]}"
+
+            # Support generic auth sources
+            uri = "#{uri}?id=#{details[:id]}" if details[:id]
+            redirect_to uri, :status => :see_other
         end
 
 
