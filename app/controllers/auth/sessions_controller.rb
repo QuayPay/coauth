@@ -42,7 +42,7 @@ module Auth
                         head :accepted
                     end
 
-                    Authentication.after_login_block.call(user)
+                    self.instance_exec user, &Authentication.after_login_block
                 else
                     login_failure(details)
                 end
@@ -75,7 +75,7 @@ module Auth
 
                 Authentication.create_with_omniauth(auth, user.id)
                 redirect_to path
-                Authentication.after_login_block.call(user, auth['provider'], auth)
+                self.instance_exec user, auth['provider'], auth, &Authentication.after_login_block
 
             # new auth and new user
             elsif auth_model.nil?
@@ -103,7 +103,7 @@ module Auth
                 # now the user record is initialised (but not yet saved), give
                 # the installation the opportunity to modify the user record or
                 # reject the signup outright
-                result = Authentication.before_signup_block.call(user, auth['provider'], auth)
+                result = self.instance_exec user, auth['provider'], auth, &Authentication.before_signup_block
 
                 logger.info "Creating new user: #{result.inspect}\n#{user.inspect}"
 
@@ -118,7 +118,7 @@ module Auth
                     # redirect the user to the page they were trying to access and
                     # run any custom post-login actions
                     redirect_to path
-                    Authentication.after_login_block.call(user, auth['provider'], auth)
+                    self.instance_exec user, auth['provider'], auth, &Authentication.after_login_block
                 else
                     info = "User creation failed with #{auth.inspect}"
                     errors = "User model errors: #{user.errors.messages}"
@@ -145,7 +145,7 @@ module Auth
                     user.save
                     new_session(user)
                     redirect_to path
-                    Authentication.after_login_block.call(user, auth['provider'], auth)
+                    self.instance_exec user, auth['provider'], auth, &Authentication.after_login_block
                 rescue => e
                     logger.error "Error with user account. Possibly due to a database failure:\nAuth model: #{auth_model.inspect}\n#{e.inspect}"
                     raise e
