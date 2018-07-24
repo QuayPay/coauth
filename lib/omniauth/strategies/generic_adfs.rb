@@ -49,6 +49,7 @@ module OmniAuth
                 options.issuer = strat.issuer
                 options.idp_sso_target_url_runtime_params = strat.idp_sso_target_url_runtime_params
                 options.name_identifier_format = strat.name_identifier_format
+                options.uid_attribute = strat.uid_attribute if strat.uid_attribute
                 options.assertion_consumer_service_url = strat.assertion_consumer_service_url
                 options.idp_sso_target_url = strat.idp_sso_target_url
 

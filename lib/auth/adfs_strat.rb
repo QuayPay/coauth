@@ -15,6 +15,7 @@ class AdfsStrat < Couchbase::Model
         metadata: :"http://tafesa.edu.au/identity/claims/DistinguishedName"
     } }
     attribute :name_identifier_format, default: lambda { 'urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified' }
+    attribute :uid_attribute
 
     attribute :assertion_consumer_service_url
     attribute :idp_sso_target_url
