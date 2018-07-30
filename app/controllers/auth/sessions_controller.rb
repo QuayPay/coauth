@@ -76,7 +76,7 @@ module Auth
 
                 ::Auth::Authentication.create_with_omniauth(auth, current_user.id)
                 redirect_to path
-                Auth::Authentication.after_login_block.call(current_user)
+                Auth::Authentication.after_login_block.call(current_user, auth[PROVIDER], auth)
 
             # new auth and new user
             elsif auth_model.nil?
@@ -134,7 +134,7 @@ module Auth
                     user = User.find_by_id(auth_model.user_id)
                     new_session(user)
                     redirect_to path
-                    Auth::Authentication.after_login_block.call(user)
+                    Auth::Authentication.after_login_block.call(user, auth[PROVIDER], auth)
                 rescue => e
                     logger.error "Error with user account. Possibly due to a database failure:\nAuth model: #{auth_model.inspect}\n#{e.inspect}"
                     raise e
