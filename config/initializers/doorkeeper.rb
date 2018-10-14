@@ -1,7 +1,10 @@
 require 'set'
+require 'doorkeeper'
+require 'doorkeeper-jwt'
 
 Doorkeeper.configure do
     orm :couchbase
+    access_token_generator '::Doorkeeper::JWT'
 
     # This block will be called to check whether the
     # resource owner is authenticated or not
@@ -71,4 +74,43 @@ Doorkeeper.configure do
 
     force_ssl_in_redirect_uri false
     grant_flows %w(authorization_code client_credentials implicit password)
+end
+
+::Doorkeeper::JWT.configure do
+    # Set the payload for the JWT token. This should contain unique information
+    # about the user.
+    # Defaults to a randomly generated token in a hash
+    # { token: "RANDOM-TOKEN" }
+    token_payload do |opts|
+        user = User.find(opts[:resource_owner_id])
+
+        {
+            iss: 'My App',
+            iat: Time.current.utc.to_i,
+            jti: SecureRandom.uuid, # @see JWT reserved claims - https://tools.ietf.org/html/draft-jones-json-web-token-07#page-7
+
+            user: {
+                id: user.id,
+                name: user.name,
+                email: user.email
+            }
+        }
+    end
+
+    # Optionally set additional headers for the JWT. See https://tools.ietf.org/html/rfc7515#section-4.1
+    token_headers do |opts|
+        {
+            kid: opts[:application][:uid]
+        }
+    end
+
+    # Use the application secret specified in the Access Grant token
+    # Defaults to false
+    # If you specify `use_application_secret true`
+    use_application_secret true
+
+    # Specify encryption type. Supports any algorithm in
+    # https://github.com/progrium/ruby-jwt
+    # defaults to nil
+    encryption_method :hs512
 end

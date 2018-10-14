@@ -17,6 +17,7 @@ Gem::Specification.new do |s|
     s.add_dependency "email_validator"
     s.add_dependency "omniauth-oauth2"
     s.add_dependency "omniauth-ldap2"
+    s.add_dependency "doorkeeper-jwt"
     s.add_dependency "omniauth-saml"
     s.add_dependency "addressable"
     s.add_dependency "omniauth"
