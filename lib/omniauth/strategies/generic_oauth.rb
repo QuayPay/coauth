@@ -44,12 +44,6 @@ module OmniAuth
                 super
             end
 
-            def authorize_params
-                session.clear
-                session['omniauth.auth_id'] = request.params['id']
-                super
-            end
-
             def set_options(id)
                 strat = OauthStrat.find(id)
 
