@@ -32,7 +32,7 @@ module OmniAuth
             end
 
             def callback_phase
-                authid = session.delete 'omniauth.auth_id'
+                authid = request.params['id']
 
                 # Set out details once again
                 if authid.nil?
@@ -61,9 +61,9 @@ module OmniAuth
                 # options.client_options.authorize_path = strat.authorize_path  if strat.authorize_path (renamed to authorize_url)
                 options.client_options.raw_info_url = strat.raw_info_url if strat.raw_info_url
                 options.client_options.info_mappings = strat.info_mappings if strat.info_mappings
-  
+
                 options.authorize_params.scope = strat.scope
-  
+
                 options.client_id = strat.client_id
                 options.client_secret = strat.client_secret
             end
@@ -75,7 +75,7 @@ module OmniAuth
             # https://github.com/omniauth/omniauth/blob/ef7f7c2349e5cc2da5eda8ab1b1308a46685a5f5/lib/omniauth/strategy.rb#L438
             # https://github.com/zquestz/omniauth-google-oauth2/blob/414c43ef3ffec37d473321f262e80f1e46dda89f/lib/omniauth/strategies/google_oauth2.rb#L104
             def callback_url
-                full_host + script_name + callback_path
+                full_host + script_name + callback_path + query_string
             end
 
             def raw_info
@@ -92,6 +92,9 @@ module OmniAuth
                 end
             end
 
+            def query_string
+                request.query_string.empty? ? '' : "?#{request.query_string}"
+            end
         end
     end
 end
