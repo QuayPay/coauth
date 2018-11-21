@@ -69,7 +69,7 @@ module OmniAuth
             # https://github.com/omniauth/omniauth/blob/ef7f7c2349e5cc2da5eda8ab1b1308a46685a5f5/lib/omniauth/strategy.rb#L438
             # https://github.com/zquestz/omniauth-google-oauth2/blob/414c43ef3ffec37d473321f262e80f1e46dda89f/lib/omniauth/strategies/google_oauth2.rb#L104
             def callback_url
-                full_host + script_name + callback_path + query_string
+                full_host + script_name + callback_path + "?id=#{request.params['id']}"
             end
 
             def raw_info

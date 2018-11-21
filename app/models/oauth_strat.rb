@@ -3,7 +3,6 @@
 class OauthStrat < CouchbaseOrm::Base
     design_document :oauths
 
-
     attribute :created_at, type: Integer, default: lambda { Time.now }
     attribute :name,       type: String
 
@@ -20,10 +19,8 @@ class OauthStrat < CouchbaseOrm::Base
     attribute :scope,          type: String
     attribute :raw_info_url,   type: String
 
-
     # Provides find_by_name function
     index_view :name
-
 
     def type
         self.class.design_document
