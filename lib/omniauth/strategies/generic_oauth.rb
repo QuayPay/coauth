@@ -9,9 +9,9 @@ module OmniAuth
         class GenericOauth < OmniAuth::Strategies::OAuth2
             option :name, 'generic_oauth'
 
-            uid {
+            uid do
                 raw_info[options.client_options.info_mappings['uid']].to_s
-            }
+            end
 
             info do
                 data = {}
