@@ -139,8 +139,15 @@ module Auth
             else
                 begin
                     # Log-in the user currently authenticating
-                    remove_session if signed_in?
                     user = User.find_by_id(auth_model.user_id)
+
+                    # There is no user model, so we want to recover from this automatically
+                    if user.nil?
+                        auth_model.destroy
+                        return create
+                    end
+                    remove_session if signed_in?
+
                     user.assign_attributes(args)
                     user.save
                     new_session(user)
@@ -165,7 +172,7 @@ module Auth
 
         def safe_params(authinfo)
             ::ActionController::Parameters.new(authinfo).permit(
-                :name, :first_name, :last_name, :email, :password, :password_confirmation, :metadata, 
+                :name, :first_name, :last_name, :email, :password, :password_confirmation, :metadata,
                 :login_name, :staff_id, :phone, :country
             )
         end
