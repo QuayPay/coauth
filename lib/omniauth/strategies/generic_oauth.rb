@@ -73,9 +73,9 @@ module OmniAuth
                 options.client_options.token_url = strat.token_url  if strat.token_url
                 options.client_options.raw_info_url = strat.raw_info_url if strat.raw_info_url
                 options.client_options.info_mappings = strat.info_mappings if strat.info_mappings
-  
+
                 options.authorize_params.scope = strat.scope
-  
+
                 options.client_id = strat.client_id
                 options.client_secret = strat.client_secret
             end
@@ -85,7 +85,7 @@ module OmniAuth
             end
 
             def callback_url
-                full_host + script_name + callback_path
+                full_host + script_name + callback_path + "?id=" + request.params['id']
             end
 
             def raw_info
