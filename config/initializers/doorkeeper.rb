@@ -38,6 +38,7 @@ Doorkeeper.configure do
         end
     end
 
+
     # Skip authorization only if the app is owned by us
     if Rails.env.production?
         skip_authorization do |resource_owner, client|
@@ -51,7 +52,7 @@ Doorkeeper.configure do
 
     # username and password authentication for local auth
     resource_owner_from_credentials do |routes|
-        user_id = User.bucket.get("useremail-#{User.process_email(params[:authority], params[:username])}", {quiet: true})
+        user_id = User.bucket.get("useremail-#{User.process_email(Authority.find_by_domain(request.host)&.id, params[:username])}", {quiet: true})
         if user_id
             user = User.find(user_id)
             if user && user.authenticate(params[:password])
