@@ -34,7 +34,7 @@ namespace :domain do
             auth.save!
 
             user = User.new
-            user.name = 'ACA Robot'
+            user.name = "ACA Robot (#{auth.name})"
             user.sys_admin = true
             user.authority_id = auth.id
             user.email = 'support@aca.im'
