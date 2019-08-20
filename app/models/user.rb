@@ -10,7 +10,7 @@ class User < CouchbaseOrm::Base
 
     PUBLIC_DATA = {only: [
         :id, :email_digest, :nickname, :name, :first_name, :last_name,
-        :country, :building, :created_at
+        :country, :building, :created_at, :staff_id
     ]}
 
 
@@ -108,4 +108,3 @@ class User < CouchbaseOrm::Base
     validates :email, :email => true
     validates :password, length: { minimum: 6, message: 'must be at least 6 characters' }, allow_blank: true
 end
-
