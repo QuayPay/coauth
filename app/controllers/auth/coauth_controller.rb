@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'securerandom'
+require 'addressable'
 
 module Auth
     class CoauthController < ActionController::Base
@@ -19,8 +20,8 @@ module Auth
         def login_path
             '/login'
         end
-        
-        
+
+
         protected
 
 
@@ -53,6 +54,11 @@ module Auth
         end
 
         def set_continue(path)
+            if path.include?("://")
+                uri = Addressable::URI.parse(path)
+                path = "#{uri.request_uri}#{uri.fragment ? "##{uri.fragment}" : nil}"
+            end
+
             value = {
                 value: path,
                 httponly: true,
