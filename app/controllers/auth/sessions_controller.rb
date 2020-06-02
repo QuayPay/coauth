@@ -174,7 +174,11 @@ module Auth
               if uri.domain == authority.domain
                 path = "#{uri.request_uri}#{uri.fragment ? "##{uri.fragment}" : nil}"
               else
-                path = authority.logout_url
+                if authority.logout_url.include?("continue=")
+                  path = URI.decode_www_form_component(authority.logout_url.split("continue=", 2)[-1])
+                else
+                  path = authority.logout_url
+                end
               end
           end
 
