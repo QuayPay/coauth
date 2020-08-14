@@ -33,6 +33,7 @@ module Auth
                     salt: SecureRandom.hex[0..(1 + rand(31))]   # Variable length 1->32
                 },
                 httponly: true,
+                expires: 24.hours,
                 path: '/auth'   # only sent to calls at this path
             }
             value[:secure] = USE_SSL
@@ -47,6 +48,7 @@ module Auth
                     salt: SecureRandom.hex[0..(1 + rand(15))]   # Variable length
                 },
                 httponly: true,
+                expires: 10.minutes,
                 path: '/auth'   # only sent to calls at this path
             }
             value[:secure] = USE_SSL
@@ -62,6 +64,7 @@ module Auth
             value = {
                 value: path,
                 httponly: true,
+                expires: 1.hour,
                 path: '/auth'   # only sent to calls at this path
             }
             value[:secure] = USE_SSL
