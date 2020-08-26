@@ -148,8 +148,19 @@ module Auth
                     end
                     remove_session if signed_in?
 
-                    user.assign_attributes(args)
-                    user.save
+                    # Don't force changes to profile if configured
+                    user_managed = authority.internals[:user_managed_attributes] || []
+                    if user_managed.empty?
+                      user.assign_attributes(args)
+                      user.save
+                    else
+                      args.each do |key, value|
+                        key = key.to_s
+                        user.__send__("#{key}=", value) if user.__send__(key).blank? || !user_managed.include?(key)
+                      end
+                      user.save
+                    end
+
                     new_session(user)
                     redirect_to path
                     self.instance_exec user, auth['provider'], auth, &Authentication.after_login_block
