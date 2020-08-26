@@ -66,6 +66,7 @@ module Auth
             # Find an authentication or create an authentication
             auth_model = Authentication.from_omniauth(auth)
             args = safe_params(auth.info)
+            authority = current_authority
 
             # adding a new auth to existing user
             if auth_model.nil? && signed_in?
@@ -87,7 +88,6 @@ module Auth
                     user.name = "#{fn} #{args[:last_name]}"
                 end
 
-                authority = current_authority
                 user.authority_id = authority.id
 
                 # This fixes issues where users change their UID
