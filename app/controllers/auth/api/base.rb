@@ -14,6 +14,7 @@ module Auth
             rescue_from ::CouchbaseOrm::Error::RecordInvalid, with: :invalid_record
             rescue_from ::Libcouchbase::Error::KeyNotFound,   with: :entry_not_found
             rescue_from ::Libcouchbase::Error::NetworkError,  with: :service_unavailable
+            rescue_from UserNotFound,  with: :token_invalid
 
 
             protected
@@ -21,7 +22,7 @@ module Auth
 
             # This defines current_authority from coauth/lib/auth/authority
             include CurrentAuthorityHelper
-            
+
 
             # Couchbase catch all
             def entry_not_found(err)
@@ -61,9 +62,22 @@ module Auth
                 head :forbidden unless user && (user.support || user.sys_admin)
             end
 
+            def token_invalid
+                head :unauthorized
+            end
+
+            class UserNotFound < StandardError
+            end
+
             # current user using doorkeeper
             def current_user
-                @current_user ||= User.find(doorkeeper_token.resource_owner_id) if doorkeeper_token
+                return @current_user if @current_user
+                user = User.find_by_id(doorkeeper_token.resource_owner_id) if doorkeeper_token
+                if user
+                  @current_user = user
+                else
+                  raise UserNotFound.new
+                end
             end
 
             # Grab the reactor details for the current request
