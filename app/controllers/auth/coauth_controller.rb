@@ -4,6 +4,8 @@ require 'securerandom'
 require 'addressable'
 
 module Auth
+    class AuthErrorRedirect < StandardError; end
+
     class CoauthController < ActionController::Base
         include UserHelper
         include CurrentAuthorityHelper
@@ -12,6 +14,7 @@ module Auth
         Rails.application.config.force_ssl = Rails.env.production? && (ENV['COAUTH_NO_SSL'].nil? || ENV['COAUTH_NO_SSL'] == 'false')
         USE_SSL = Rails.application.config.force_ssl
 
+        rescue_from StandardError::AuthErrorRedirect(e), with: :error_redirect(e)
 
         def success_path
             '/login_success.html'
@@ -69,6 +72,10 @@ module Auth
             }
             value[:secure] = USE_SSL
             cookies.encrypted[:continue] = value
+        end
+
+        def error_redirect(exception)
+            redirect_to exception.message
         end
     end
 end
