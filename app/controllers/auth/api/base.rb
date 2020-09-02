@@ -2,6 +2,8 @@
 
 module Auth
     module Api
+        class UserNotFound < StandardError; end
+        
         class Base < ActionController::API
             NAME_SORT_ASC ||= [{
                 'doc.name.sort' => {
@@ -64,9 +66,6 @@ module Auth
 
             def token_invalid
                 head :unauthorized
-            end
-
-            class UserNotFound < StandardError
             end
 
             # current user using doorkeeper
