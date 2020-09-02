@@ -14,7 +14,7 @@ module Auth
         Rails.application.config.force_ssl = Rails.env.production? && (ENV['COAUTH_NO_SSL'].nil? || ENV['COAUTH_NO_SSL'] == 'false')
         USE_SSL = Rails.application.config.force_ssl
 
-        rescue_from StandardError::AuthErrorRedirect(e), with: :error_redirect(e)
+        rescue_from AuthErrorRedirect, with: :error_redirect
 
         def success_path
             '/login_success.html'
