@@ -19,7 +19,7 @@ Gem::Specification.new do |s|
     s.add_dependency "omniauth-ldap2"
     s.add_dependency "omniauth-saml"
     s.add_dependency "addressable"
-    s.add_dependency "omniauth"
+    s.add_dependency "omniauth", "~> 1.9"
     s.add_dependency "scrypt"
     s.add_dependency "jwt"
 
