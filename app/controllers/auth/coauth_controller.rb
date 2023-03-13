@@ -27,6 +27,25 @@ module Auth
 
         protected
 
+        def redirect_continue(path)
+          # checking for `.attacker.com` OR `//<external_domain>`
+          # no internal paths use `//`
+          check_path = path.split("?")[0]
+    
+          # need to check if redirect is configured in the DB
+          if !check_path.start_with?("/") || check_path.include?("//")
+            authority = current_authority
+            uri = Addressable::URI.parse(path)
+    
+            path = if uri.domain == authority.domain
+              "#{uri.request_uri}#{uri.fragment ? "##{uri.fragment}" : nil}"
+            else
+              yield
+            end
+          end
+    
+          redirect_to path
+        end
 
         def new_session(user)
             @current_user = user
@@ -59,19 +78,21 @@ module Auth
         end
 
         def set_continue(path)
-            if path.include?("://")
-                uri = Addressable::URI.parse(path)
-                path = "#{uri.request_uri}#{uri.fragment ? "##{uri.fragment}" : nil}"
-            end
-
-            value = {
-                value: path,
-                httponly: true,
-                expires: 1.hour,
-                path: '/auth'   # only sent to calls at this path
-            }
-            value[:secure] = USE_SSL
-            cookies.encrypted[:continue] = value
+          path ||= "/"
+    
+          if !path.start_with?("/") || path.include?("//")
+            uri = Addressable::URI.parse(path)
+            path = "#{uri.request_uri}#{uri.fragment ? "##{uri.fragment}" : nil}"
+          end
+    
+          value = {
+            value: path,
+            httponly: true,
+            secure: USE_SSL,
+            same_site: :none,
+            path: "/auth" # only sent to calls at this path
+          }
+          cookies.encrypted[:continue] = value
         end
 
         def error_redirect(exception)
