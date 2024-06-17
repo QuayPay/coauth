@@ -30,12 +30,11 @@ class OauthStrat < CouchbaseOrm::Base
         raise 'bad type' unless type.to_s == self.class.design_document
     end
 
-    def serializable_hash(options = {}, **opts)
+    def serializable_hash(**options)
         options = {
-          methods: :type
+            methods: :type
         }.merge!(options)
-        options.merge!(opts)
-        super(options)
+        super(**options)
     end
 
 
