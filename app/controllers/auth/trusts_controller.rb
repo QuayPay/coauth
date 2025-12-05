@@ -50,13 +50,15 @@ module Auth
                     extract_and_save_token(app)
                 else
                     # fail the request
-                    response.status = 400
-                    head :bad_request
+                    render json: { error: 'invalid_request', error_description: 'refresh_token is required' }, status: :bad_request
                 end
+            elsif safe[:grant_type] == 'client_credentials'
+                # Client credentials flow for server-to-server authentication
+                # No refresh token encryption needed since there's no browser session
+                app, secret = get_trust_data(safe[:client_id])
+                yield
             else
-                # fail the request
-                response.status = 400
-                head :bad_request
+                render json: { error: 'unsupported_grant_type' }, status: :bad_request
             end
         end
 
