@@ -71,7 +71,17 @@ module Auth
             # current user using doorkeeper
             def current_user
                 return @current_user if @current_user
-                user = User.find_by_id(doorkeeper_token.resource_owner_id) if doorkeeper_token
+
+                if doorkeeper_token
+                  # Try to find user by resource_owner_id (normal auth code flow)
+                  user = User.find_by_id(doorkeeper_token.resource_owner_id) if doorkeeper_token.resource_owner_id
+
+                  # For client_credentials flow, fall back to default user if configured
+                  if user.nil? && ENV['CLIENT_CREDENTIALS_DEFAULT_USER_ID']
+                    user = User.find_by_id(ENV['CLIENT_CREDENTIALS_DEFAULT_USER_ID'])
+                  end
+                end
+
                 if user
                   @current_user = user
                 else
